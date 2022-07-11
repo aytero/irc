@@ -14,13 +14,20 @@
 # include <unistd.h>
 # include <fcntl.h>
 
-# include "Event.hpp"
 # include "Client.hpp"
 # include "cmd/CommandHandler.hpp"
 
+# define MAX_EVENTS 128
+
+
+enum EventType {
+	READ_EVENT,
+	WRITE_EVENT
+};
+
 class Server {
 	int kq;
-	int fd;
+//	int fd;
 	unsigned listeningSocket;
 	struct sockaddr_in address;
 	const std::string port;
@@ -43,8 +50,7 @@ class Server {
 
 	int processEvents();
 
-	int addReadEvent(int fd);
-	int addWriteEvent(int fd);
+	int addEvent(int eventType, int fd);
 	int request(int fd);
 	int response(const struct kevent &event, Client *client);
 

@@ -1,5 +1,8 @@
-//
-// Created by Asiet Dzharimova on 10.07.2022.
-//
-
 #include "Socket.hpp"
+
+Socket::Socket(int fd) : fd(fd) {
+}
+
+Socket::~Socket() {
+	close(fd);
+}

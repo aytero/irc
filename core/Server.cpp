@@ -2,7 +2,7 @@
 
 Server::Server(const char *port, const char *pass) : port(port), password(pass) {
 	initListeningSocket();
-	if (addReadEvent(listeningSocket) == IRC_ERROR) {
+	if (addEvent(READ_EVENT, listeningSocket) == IRC_ERROR) {
 		logger::error("failed to configure server socket for reading");
 		exit(1);
 	}
@@ -10,21 +10,14 @@ Server::Server(const char *port, const char *pass) : port(port), password(pass) 
 	commandHandler = new CommandHandler;
 }
 
-int Server::addReadEvent(int fd) {
+int Server::addEvent(int eventType, int fd) {
 	struct kevent event;
 
 	memset(&event, 0, sizeof(event));
-	EV_SET(&event, fd, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0, 0);
-	if (kevent(kq, &event, 1, NULL, 0, NULL) == IRC_ERROR)
-		return IRC_ERROR;
-	return IRC_OK;
-}
-
-int Server::addWriteEvent(int fd) {
-	struct kevent event;
-
-	memset(&event, 0, sizeof(event));
-	EV_SET(&event, fd, EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, 0);
+	if (eventType == EventType::READ_EVENT)
+		EV_SET(&event, fd, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0, 0);
+	else
+		EV_SET(&event, fd, EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, 0);
 	if (kevent(kq, &event, 1, NULL, 0, NULL) == IRC_ERROR)
 		return IRC_ERROR;
 	return IRC_OK;
@@ -67,14 +60,14 @@ int Server::acceptConnection(int event_fd) {
 		return IRC_ERROR;
 	}
 	fcntl(client_fd, F_SETFL, O_NONBLOCK);
-	if (addReadEvent(client_fd) == IRC_ERROR) {
+	if (addEvent(READ_EVENT, client_fd) == IRC_ERROR) {
 		close(client_fd);
 		logger::error("Failed to accept new client");
 		return IRC_ERROR;
 	}
 	std::string mes = "Accepted new client with fd " + std::to_string(client_fd);
 	logger::info(mes);
-	Client *newClient = new Client(client_fd, event_fd);
+	Client *newClient = new Client(client_fd);
 	clients.insert(std::pair<int,Client*>(newClient->getFd(), newClient));
 	return IRC_OK;
 }
@@ -117,18 +110,6 @@ int response(int fd) {
 //	clients[fd]->response();
 	lenSent = send(fd, clients[fd]->getResponseText(), clients[fd]->getResponseLen(), 0);
 	return lenSent;
-//
-//	if (session->getResponseLen() <= event.data) {
-//		lenSent = send(session->getFd(), session->getResponseText(), session->getResponseLen(), 0);
-//		session->clearResponse();
-//		// clearRequest();
-//	} else {
-//		lenSent = send(session->getFd(), session->getResponseText(), event.data, 0);
-//		session->setResponseOffset(session->getResponseOffset() + lenSent);
-//		if (lenSent > 0)
-//			addWriteEvent(session->getFd());
-//	}
-//	return lenSent;
 }
 
 int Server::processEvents() {
@@ -148,6 +129,7 @@ int Server::processEvents() {
 			acceptConnection(event);
 		} else if (event.filter == EVFILT_READ) {
 			request(event, clients[eventFd]);
+			addEvent(WRITE_EVENT, eventFd);
 		} else if (event.filter == EVFILT_WRITE) {
 			response(event, clients[eventFd]);
 		} else
@@ -158,11 +140,11 @@ int Server::processEvents() {
 
 int Server::run() {
 	for (;;) {
-		if (processEvents() == WS_ERROR) {
+		if (processEvents() == IRC_ERROR) {
 			logger::error("Event processing error");
 		}
 		if (terminate || quit) {
-			//			shutdown();
+//			shutdown();
 			break;
 		}
 	}
