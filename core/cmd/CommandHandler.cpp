@@ -2,11 +2,12 @@
 
 CommandHandler::CommandHandler() {
 //	commands["JOIN"] = new JoinCommand();
-	commands["PING"] = new PingCommand();
+	commands["PING"] = new PingCommand(true);
 //	commands["PONG"] = new PongCommand();
 }
 //CommandHandler::CommandHandler() {}
-~CommandHandler::CommandHandler() {}
+CommandHandler::~CommandHandler() {
+}
 //CommandHandler &CommandHandler::operator=() {}
 
 std::vector<std::string> CommandHandler::parse(std::string &message) {
@@ -21,6 +22,6 @@ void CommandHandler::handle(Client *client, std::string &message) {
 //	for (ss) {
 //		args.push_back();
 //	}
-	client.addCommand();
+//	client->addCommand();
 	commands["PING"]->execute(client, args);
 }

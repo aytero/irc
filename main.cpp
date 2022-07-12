@@ -8,5 +8,6 @@ int main(int argc, char **argv) {
 	}
 	Server *serv = new Server(argv[1], argv[2]);
 	serv->run();
+	delete serv;
 	return 0;
 }

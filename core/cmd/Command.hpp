@@ -3,17 +3,16 @@
 
 # include <string>
 # include <vector>
-# include "../Server.hpp"
 # include "../Client.hpp"
 
 class Command {
 protected:
 	bool authRequired_;
-	Server *server;
+//	Server *server;
 
 public:
 //	Command();
-	Command( bool auth, Server *serv );
+	Command(bool auth);
 	Command(const Command &ref);
 	Command &operator=(const Command &ref);
 	virtual ~Command();

@@ -11,14 +11,17 @@
 # include <sys/event.h>
 # include <sys/ioctl.h>
 # include <netinet/in.h>
-# include <unistd.h>
 # include <fcntl.h>
+# include <unistd.h>
 
 # include "Client.hpp"
 # include "cmd/CommandHandler.hpp"
+# include "cmd/Command.hpp"
 
 # define MAX_EVENTS 128
 
+class Command;
+class CommandHandler;
 
 enum EventType {
 	READ_EVENT,
@@ -38,6 +41,7 @@ class Server {
 //	std::vector<Channel*> channels;
 	CommandHandler *commandHandler;
 
+//	Server();
 	Server(const Server &);
 	Server& operator=(const Server &);
 
@@ -52,17 +56,16 @@ class Server {
 
 	int addEvent(int eventType, int fd);
 	int request(int fd);
-	int response(const struct kevent &event, Client *client);
+	int response(int fd);
 
 public:
-	Server();
 	Server(const char *port, const char *pass);
 	~Server();
 	int run();
 
 	enum returnStatus {
-		IRC_OK,
-		IRC_ERROR,
+		IRC_OK = 0,
+		IRC_ERROR = -1,
 	};
 };
 

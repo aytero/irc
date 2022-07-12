@@ -1,13 +1,20 @@
 #include "Server.hpp"
 
 Server::Server(const char *port, const char *pass) : port(port), password(pass) {
-	initListeningSocket();
-	if (addEvent(READ_EVENT, listeningSocket) == IRC_ERROR) {
-		logger::error("failed to configure server socket for reading");
+	kq = kqueue();
+	if (kq == -1) {
 		exit(1);
 	}
-	logger::info("Server started successfully");
+	initListeningSocket();
+	if (addEvent(READ_EVENT, listeningSocket) == IRC_ERROR) {
+		exit(1);
+	}
 	commandHandler = new CommandHandler;
+}
+
+Server::~Server() {
+	std::cout << "serv destr\n";
+	shutdown();
 }
 
 int Server::addEvent(int eventType, int fd) {
@@ -18,8 +25,9 @@ int Server::addEvent(int eventType, int fd) {
 		EV_SET(&event, fd, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0, 0);
 	else
 		EV_SET(&event, fd, EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, 0);
-	if (kevent(kq, &event, 1, NULL, 0, NULL) == IRC_ERROR)
+	if (kevent(kq, &event, 1, NULL, 0, NULL) == IRC_ERROR) {
 		return IRC_ERROR;
+	}
 	return IRC_OK;
 }
 
@@ -28,12 +36,11 @@ void Server::initListeningSocket() {
 
 	listeningSocket = ::socket(PF_INET, SOCK_STREAM, 0);
 	if (listeningSocket == -1) {
-		logger::error("socket creation");
 		throw std::runtime_error("Error: socket creation.");
 		return;
 	}
 	if (setsockopt(listeningSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof opt) == -1) {// size of int?
-		logger::error("setsockport");
+		throw std::runtime_error("Error: setsockopt");
 	}
 	address.sin_family = PF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
@@ -41,11 +48,9 @@ void Server::initListeningSocket() {
 
 	memset(address.sin_zero, '\0', sizeof address.sin_zero);
 	if (bind(listeningSocket, (struct sockaddr *)&address, sizeof(address))) {
-		logger::error("bind");
 		throw std::runtime_error("Error bind.");
 	}
 	if (listen(listeningSocket, 100)) {//serv.max_listen
-		logger::error("listen");
 		throw std::runtime_error("Error listen.");
 	}
 }
@@ -56,17 +61,14 @@ int Server::acceptConnection(int event_fd) {
 	int client_fd;
 
 	if ((client_fd = ::accept(event_fd, (struct sockaddr *)&client_addr, (socklen_t *)&addrlen)) < 0) {
-		logger::error("Failed to accept new client");
 		return IRC_ERROR;
 	}
 	fcntl(client_fd, F_SETFL, O_NONBLOCK);
 	if (addEvent(READ_EVENT, client_fd) == IRC_ERROR) {
 		close(client_fd);
-		logger::error("Failed to accept new client");
 		return IRC_ERROR;
 	}
-	std::string mes = "Accepted new client with fd " + std::to_string(client_fd);
-	logger::info(mes);
+	std::cout << "accept here\n";
 	Client *newClient = new Client(client_fd);
 	clients.insert(std::pair<int,Client*>(newClient->getFd(), newClient));
 	return IRC_OK;
@@ -93,22 +95,23 @@ int Server::request(int fd) {
 	char buffer[100];
 
 	memset(buffer, 0, sizeof buffer);
-	while (!std:strstr(buffer, "\r\n")) {
+	while (!std::strstr(buffer, "\r\n")) {
 		if (recv(fd, buffer, 100, 0) < 0) {
 			// if (errno != EWOULDBLOCK)
 			throw std::runtime_error("Error: socket creation.");
 		}
 		message.append(buffer);
 	}
-	commandHandler->handle(clients[fd], message)
+	commandHandler->handle(clients[fd], message);
 	return IRC_OK;
 }
 
-int response(int fd) {
+int Server::response(int fd) {
 	int lenSent;
 
 //	clients[fd]->response();
-	lenSent = send(fd, clients[fd]->getResponseText(), clients[fd]->getResponseLen(), 0);
+	std::string repl = clients[fd]->getReply();
+	lenSent = send(fd, repl.c_str(), repl.size(), 0);
 	return lenSent;
 }
 
@@ -117,8 +120,9 @@ int Server::processEvents() {
 	struct kevent eventList[MAX_EVENTS];
 
 	new_events_num = kevent(kq, 0, 0, eventList, MAX_EVENTS, NULL);
-		if (new_events_num == IRC_ERROR)
-			return -1;
+	if (new_events_num == IRC_ERROR) {
+		return -1;
+	}
 
 	for (int i = 0; i < new_events_num; ++i) {
 		struct kevent &event = eventList[i];
@@ -126,12 +130,12 @@ int Server::processEvents() {
 		if (event.flags & EV_EOF)
 			disconnectClient(eventFd);
 		else if (eventFd == listeningSocket) {
-			acceptConnection(event);
+			acceptConnection(event.ident);
 		} else if (event.filter == EVFILT_READ) {
-			request(event, clients[eventFd]);
+			request(event.ident);
 			addEvent(WRITE_EVENT, eventFd);
 		} else if (event.filter == EVFILT_WRITE) {
-			response(event, clients[eventFd]);
+			response(event.ident);
 		} else
 			disconnectClient(eventFd);
 	}
@@ -141,21 +145,21 @@ int Server::processEvents() {
 int Server::run() {
 	for (;;) {
 		if (processEvents() == IRC_ERROR) {
-			logger::error("Event processing error");
-		}
-		if (terminate || quit) {
-//			shutdown();
+			std::cout << "err\n";
 			break;
 		}
+//		if (terminate || quit) {
+//			shutdown();
+//			break;
+//		}
 	}
 	return IRC_OK;
 }
 
 void Server::shutdown() {
-	logger::info("Starting graceful shutdown");
+	close(kq);
 	disconnectAllClients();
 	close(listeningSocket);
-	closeAllSockets();
 }
 
 void Server::disconnectAllClients() {
@@ -171,6 +175,4 @@ void Server::disconnectAllClients() {
 void Server::disconnectClient(int fd) {
 	delete clients[fd];
 	clients.erase(fd);
-	std::string mes = std::to_string(fd) + " has disconnected";
-	logger::info(mes);
 }

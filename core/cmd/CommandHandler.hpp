@@ -9,6 +9,8 @@
 # include "commands.hpp"
 # include "../Client.hpp"
 
+class Command;
+
 class CommandHandler {
 	std::map<std::string, Command*> commands;
 
