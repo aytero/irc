@@ -5,16 +5,17 @@
 # include <vector>
 # include <map>
 # include <sstream>
+# include <iostream>
 # include "Command.hpp"
 # include "commands.hpp"
-# include "../Client.hpp"
+# include "../core/Client.hpp"
 
 class Command;
 
 class CommandHandler {
 	std::map<std::string, Command*> commands;
-
 	std::vector<std::string> parse(std::string &message);
+
 public:
 	CommandHandler();
 	~CommandHandler();

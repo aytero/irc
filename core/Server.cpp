@@ -21,7 +21,7 @@ int Server::addEvent(int eventType, int fd) {
 	struct kevent event;
 
 	memset(&event, 0, sizeof(event));
-	if (eventType == EventType::READ_EVENT)
+	if (eventType == READ_EVENT)
 		EV_SET(&event, fd, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0, 0);
 	else
 		EV_SET(&event, fd, EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, 0);
@@ -35,7 +35,7 @@ void Server::initListeningSocket() {
 	int opt = 1;
 
 	listeningSocket = ::socket(PF_INET, SOCK_STREAM, 0);
-	if (listeningSocket == -1) {
+	if (listeningSocket < 0) {
 		throw std::runtime_error("Error: socket creation.");
 		return;
 	}
@@ -110,7 +110,7 @@ int Server::response(int fd) {
 	int lenSent;
 
 //	clients[fd]->response();
-	std::string repl = clients[fd]->getReply();
+	std::string repl = clients[fd]->getReply(); // serialize?
 	lenSent = send(fd, repl.c_str(), repl.size(), 0);
 	return lenSent;
 }
@@ -126,7 +126,7 @@ int Server::processEvents() {
 
 	for (int i = 0; i < new_events_num; ++i) {
 		struct kevent &event = eventList[i];
-		int eventFd = event.ident;
+		unsigned eventFd = event.ident;
 		if (event.flags & EV_EOF)
 			disconnectClient(eventFd);
 		else if (eventFd == listeningSocket) {

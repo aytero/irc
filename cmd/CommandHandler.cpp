@@ -7,12 +7,18 @@ CommandHandler::CommandHandler() {
 }
 //CommandHandler::CommandHandler() {}
 CommandHandler::~CommandHandler() {
+	std::map<std::string, Command*>::iterator it = commands.begin();
+	std::map<std::string, Command*>::iterator ite = commands.end();
+	for (; it != ite; ++it) {
+		delete it->second;
+	}
+	commands.clear();
 }
 //CommandHandler &CommandHandler::operator=() {}
 
 std::vector<std::string> CommandHandler::parse(std::string &message) {
 	std::vector<std::string> args;
-	args.push_back("PING");
+	args.push_back(message);
 	return args;
 }
 
@@ -23,5 +29,6 @@ void CommandHandler::handle(Client *client, std::string &message) {
 //		args.push_back();
 //	}
 //	client->addCommand();
+	//if command not in commands -> error
 	commands["PING"]->execute(client, args);
 }

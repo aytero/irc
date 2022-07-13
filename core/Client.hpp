@@ -6,7 +6,9 @@
 
 
 class Client : public Socket {
-	int fd;
+	std::string nickname;
+	std::string realName;
+
 	std::string reply;
 
 public:
@@ -15,6 +17,8 @@ public:
 //	void reply(std::string mes);
 	void setReply(std::string mes);
 	std::string getReply();
+	std::string getNickname();
+	std::string getRealName();
 };
 
 

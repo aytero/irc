@@ -1,9 +1,10 @@
 #ifndef IRC_COMMAND_HPP
 # define IRC_COMMAND_HPP
 
+# include <iostream>
 # include <string>
 # include <vector>
-# include "../Client.hpp"
+# include "../core/Client.hpp"
 
 class Command {
 protected:
@@ -11,7 +12,7 @@ protected:
 //	Server *server;
 
 public:
-//	Command();
+	Command();
 	Command(bool auth);
 	Command(const Command &ref);
 	Command &operator=(const Command &ref);

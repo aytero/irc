@@ -18,3 +18,10 @@ void Client::setReply(std::string mes) {
 std::string Client::getReply() {
 	return reply;
 }
+
+std::string Client::getNickname() {
+	return nickname;
+}
+std::string Client::getRealName() {
+	return realName;
+}
