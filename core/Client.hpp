@@ -19,6 +19,7 @@ public:
 	std::string getReply();
 	std::string getNickname();
 	std::string getRealName();
+	int getChannelNum();
 };
 
 

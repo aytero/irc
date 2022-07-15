@@ -2,6 +2,7 @@
 # define IRC_COMMANDS_HPP
 
 # include "Command.hpp"
+# include "replies.hpp"
 
 //class Command;
 
@@ -12,7 +13,7 @@ public:
 	~JoinCommand();
 //	JoinCommand &operator=(const JoinCommand &ref);
 
-	void execute(Client *client, std::vector<std::string> args);
+	void execute(Server *server, Client *client, std::vector<std::string> args);
 };
 
 class PingCommand : public Command {
@@ -22,7 +23,21 @@ public:
 	~PingCommand();
 //	PingCommand &operator=(const PingCommand &ref);
 
-	void execute(Client *client, std::vector<std::string> args);
+	void execute(Server *server, Client *client, std::vector<std::string> args);
 };
 
+class NamesCommand : public Command {
+public:
+	void execute(Server *server, Client *client, std::vector<std::string> args);
+};
+
+class PartCommand : public Command {
+public:
+	void execute(Server *server, Client *client, std::vector<std::string> args);
+};
+
+class ModeCommand : public Command {
+public:
+	void execute(Server *server, Client *client, std::vector<std::string> args);
+};
 #endif //IRC_COMMANDS_HPP

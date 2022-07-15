@@ -156,6 +156,19 @@ int Server::run() {
 	return IRC_OK;
 }
 
+void Server::createChannel(std::string name, str::string key, Client *client) {
+	Channel *channel = new Channel(name, key);
+	channel->setOp(client);
+}
+
+Channel *Server::getChannel(str::string name) {
+	for (int i = 0; i < channels.size(); ++i) {
+		if (channels[i]->getName() == name)
+			return channels[i];
+	}
+	return 0;
+}
+
 void Server::shutdown() {
 	close(kq);
 	disconnectAllClients();

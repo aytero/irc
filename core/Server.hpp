@@ -15,6 +15,7 @@
 # include <unistd.h>
 
 # include "Client.hpp"
+# include "Channel.hpp"
 # include "cmd/CommandHandler.hpp"
 # include "cmd/Command.hpp"
 
@@ -38,7 +39,7 @@ class Server {
 
 //	Event *event;
 	std::map<int, Client*> clients;
-//	std::vector<Channel*> channels;
+	std::vector<Channel*> channels;
 	CommandHandler *commandHandler;
 
 //	Server();
@@ -62,6 +63,10 @@ public:
 	Server(const char *port, const char *pass);
 	~Server();
 	int run();
+
+	void createChannel(std::string name, str::string key, Client *client);
+	Channel *getChannel(str::string name);
+	int getChannelNum();
 
 	enum returnStatus {
 		IRC_OK = 0,

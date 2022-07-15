@@ -19,7 +19,7 @@ class CommandHandler {
 public:
 	CommandHandler();
 	~CommandHandler();
-	void handle(Client *client, std::string &message);
+	void handle(Server *server, Client *client, std::string &message);
 };
 
 

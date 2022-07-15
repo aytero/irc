@@ -4,6 +4,7 @@
 # include <iostream>
 # include <string>
 # include <vector>
+# include "../core/Server.hpp"
 # include "../core/Client.hpp"
 
 class Command {
@@ -18,7 +19,7 @@ public:
 	Command &operator=(const Command &ref);
 	virtual ~Command();
 
-	virtual void execute(Client *client, std::vector<std::string> args) = 0;
+	virtual void execute(Server *server, Client *client, std::vector<std::string> args) = 0;
 	bool authRequired() const;
 };
 

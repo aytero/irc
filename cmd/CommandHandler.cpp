@@ -22,7 +22,7 @@ std::vector<std::string> CommandHandler::parse(std::string &message) {
 	return args;
 }
 
-void CommandHandler::handle(Client *client, std::string &message) {
+void CommandHandler::handle(Server *server, Client *client, std::string &message) {
 //	std::stringstream ss;
 	std::vector<std::string> args = parse(message);
 //	for (ss) {
@@ -30,5 +30,5 @@ void CommandHandler::handle(Client *client, std::string &message) {
 //	}
 //	client->addCommand();
 	//if command not in commands -> error
-	commands["PING"]->execute(client, args);
+	commands["PING"]->execute(server, client, args);
 }
