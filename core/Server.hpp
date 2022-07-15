@@ -31,7 +31,6 @@ enum EventType {
 
 class Server {
 	int kq;
-//	int fd;
 	unsigned listeningSocket;
 	struct sockaddr_in address;
 	const std::string port;
