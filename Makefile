@@ -5,8 +5,9 @@ OBJS_DIR			= ./objs
 CXX_HEADERS			= .
 
 CXX_FILES			= main.cpp cmd/Command.cpp cmd/CommandHandler.cpp \
-						core/Server.cpp core/Socket.cpp core/Client.cpp core/Channel.cpp\
-						cmd/PasswordCommand.cpp cmd/NickCommand.cpp cmd/UserCommand.cpp
+						core/Server.cpp core/Socket.cpp core/Client.cpp core/Channel.cpp \
+						cmd/PasswordCommand.cpp cmd/NickCommand.cpp cmd/UserCommand.cpp \
+						cmd/PrivMsgCommand.cpp
 #						cmd/JoinCommand.cpp cmd/PartCommand.cpp cmd/PrivMsgCommand.cpp \
 #						cmd/PingCommand.cpp cmd/NamesCommand.cpp
 

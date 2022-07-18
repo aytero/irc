@@ -1,6 +1,6 @@
 #include "Client.hpp"
 
-Client::Client(int fd, std::string host) : fd(fd), hostname(host), state(PASSWORD) {}
+Client::Client(int fd, std::string host) : fd(fd), hostname(host), state(PASSWORD), offset_(0) {}
 
 Client::~Client() {
 	std::cout << "client destr\n";
@@ -14,14 +14,18 @@ bool Client::isRegistered() {
 	return state == DONE;
 }
 
-void Client::addReply(std::string serv, std::string mes) {
+void Client::addReply(std::string source, std::string numeric, std::string mes) {
+	reply.append(":" + source + " " + numeric + " " + nickname + " " + mes + "\r\n");
+}
+
+void Client::addReply(std::string source, std::string mes) {
 	//	std::string(":serv.bar") + std::string("001") +
-	std::cout << "serv repl\n";
-	reply.append(":" + serv + " " + nickname + " " + mes + "\r\n");
+	reply.append(":" + source + " " + nickname + " " + mes + "\r\n");
 }
 
 void Client::addReply(std::string mes) {
-	reply.append(":" + getNickname() + " " + mes + "\r\n");
+//	reply.append(":" + getNickname() + " " + mes + "\r\n");
+	reply.append(mes + "\r\n");
 }
 
 void Client::welcome() {
@@ -40,7 +44,9 @@ void Client::setReply(std::string mes) {
 }
 
 void Client::clearReply() {
+	offset_ = 0;
 	reply.clear();
+	reply = "";
 }
 
 std::string Client::getReply() {

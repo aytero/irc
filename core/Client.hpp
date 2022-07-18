@@ -35,6 +35,7 @@ class Client {
 	int fd;
 
 	std::string request;
+	unsigned int offset_;
 
 public:
 	Client(int fd, std::string host);
@@ -43,13 +44,17 @@ public:
 	int getFd();
 	void addRequest(std::string mes) {request.append(mes);}
 	std::string &getRequest() {return request;}
-	void clearRequest() {request.clear();}
+	void clearRequest() {request.clear(); request = "";}
 	bool isRegistered();
 	void addReply(std::string mes);
-	void addReply(std::string serv, std::string mes);
+	void addReply(std::string source, std::string mes);
+	void addReply(std::string source, std::string numeric, std::string mes);
 	void setReply(std::string mes);
 	void clearReply();
 	std::string getReply();
+
+	void setOffset(unsigned int offset) {offset_ = offset;}
+	unsigned int getOffset() { return offset_; }
 
 	void setState(RegistrationState new_state);
 	RegistrationState getState();

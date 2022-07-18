@@ -43,7 +43,7 @@ void NickCommand::execute(Client *client, std::vector <std::string> args) {
 		client->setNickname(nick);
 		if (client->getState() != DONE) {
 			client->setState(USERNAME);
-			client->addReply(nick + " nickname set");
+//			client->addReply(server_->getHostname(), nick + " :nickname set");
 		}
 		client->welcome();
 	}

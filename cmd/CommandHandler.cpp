@@ -5,7 +5,7 @@ CommandHandler::CommandHandler() {}
 CommandHandler::CommandHandler(Server *server) : server_(server) {
 //	commands["JOIN"] = new JoinCommand(true, server_);
 //	commands["PART"] = new PartCommand(true, server_);
-//	commands["PRIVMSG"] = new PrivMsgCommand(true, server_);
+	commands["PRIVMSG"] = new PrivMsgCommand(true, server_);
 //	commands["PING"] = new PingCommand(true, server_);
 	//	commands["PONG"] = new PongCommand();
 	commands["PASS"] = new PasswordCommand(false, server_);
@@ -52,8 +52,7 @@ void CommandHandler::handle(Client *client, std::string &message) {
 	std::string separator;
 
 	while (std::getline(ss, separator)) {
-		separator = separator.substr(0,
-									 separator[separator.size() - 1] == '\r' ? separator.size() - 1 : separator.size());
+		separator = separator.substr(0, separator[separator.size() - 1] == '\r' ? separator.size() - 1 : separator.size());
 		std::string cmd = separator.substr(0, separator.find(' '));
 
 		try {
@@ -61,15 +60,20 @@ void CommandHandler::handle(Client *client, std::string &message) {
 			std::vector <std::string> args;
 			std::string buf;
 			std::stringstream ssin(separator.substr(cmd.size(), separator.size()));
-			while (ssin >> buf)
+			while (ssin >> buf) {
+//				if (buf[0] == ':')//->++buf
+//					buf = buf.substr(1);
+//				std::cout << buf << "\n";
+//				std::cout << buf[0] << "\n";
 				args.push_back(buf);
-			if (!client->isRegistered() && command->authRequired()) {
-				client->addReply(ERR_NOTREGISTERED());
+			}
+			if (command->authRequired() && !client->isRegistered()) {
+				client->addReply(server_->getHostname(), "451", ERR_NOTREGISTERED());
 				return;
 			}
 			command->execute(client, args);
 		} catch (const std::out_of_range &e) {
-			client->addReply(ERR_UNKNOWNCOMMAND());
+			client->addReply(ERR_UNKNOWNCOMMAND(cmd));
 		}
 	}
 }

@@ -4,12 +4,12 @@ PasswordCommand::PasswordCommand(bool auth, Server *server) : Command(auth, serv
 
 void PasswordCommand::execute(Client *client, std::vector <std::string> args) {
 	if (client->isRegistered()) {
-		client->addReply(ERR_ALREADYREGISTERED(client->getNickname()));
+		client->addReply(server_->getHostname(), ERR_ALREADYREGISTERED(client->getNickname()));
 	} else if (args.empty()) {
-		client->addReply(ERR_NEEDMOREPARAMS(std::string("PASS")));
+		client->addReply(server_->getHostname(), ERR_NEEDMOREPARAMS(std::string("PASS")));
 	} else {
 		client->setPassword(args[0]);
 		client->setState(NICKNAME);
-		client->addReply("password set");
+//		client->addReply(server_->getHostname(), ":password set");
 	}
 }

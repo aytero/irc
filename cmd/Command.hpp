@@ -62,12 +62,12 @@ public:
 //	ModeCommand(bool auth, Server *server);
 //	void execute(Client *client, std::vector<std::string> args);
 //};
-//
-//class PrivMsgCommand : public Command {
-//public:
-//	PrivMsgCommand(bool auth, Server *server);
-//	void execute(Client *client, std::vector<std::string> args);
-//};
+
+class PrivMsgCommand : public Command {
+public:
+	PrivMsgCommand(bool auth, Server *server);
+	void execute(Client *client, std::vector<std::string> args);
+};
 
 class PasswordCommand : public Command {
 public:

@@ -7,7 +7,7 @@ JoinCommand::~JoinCommand() {}
 
 void JoinCommand::execute(Client *client, std::vector<std::string> args) {
 	if (args.empty()) {
-		client->setReply(ERR_NEEDMOREPARAMS("JOIN"))
+		client->setReply(ERR_NEEDMOREPARAMS(std::string("JOIN")));
 		return;
 	}
 	if (args[0] == "0") {

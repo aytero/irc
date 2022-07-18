@@ -53,15 +53,15 @@ class Server {
 
 	int processEvents();
 
-	int addEvent(int eventType, int fd);
 	int request(int fd);
-	int response(int fd);
+	int response(int fd, unsigned dataSize);
 
 public:
 	Server(const char *port, const char *pass);
 	~Server();
 	int run();
 
+	int addEvent(int eventType, int fd);
 	void createChannel(std::string name, std::string key, Client *client);
 	Channel *getChannel(std::string name);
 	int getChannelNum();

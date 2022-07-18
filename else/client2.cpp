@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <string.h>
 
 #define PORT 8080
 
@@ -44,13 +45,13 @@ int	main( int argc, char **argv ) {
 //	valread = read(sock, buffer, 1024);
 //	std::cout << buffer << "\n";
 
-	mes = "NICK ayo\r\n";
+	mes = "NICK ton\r\n";
 	send(sock, mes.c_str(), mes.size(), 0);
 
 //	valread = read(sock, buffer, 1024);
 //	std::cout << buffer << "\n";
 
-	mes = "USER aytero 0 * asya\r\n";
+	mes = "USER pony 0 * toh\r\n";
 	send(sock, mes.c_str(), mes.size(), 0);
 
 	memset(buffer, 0, sizeof buffer);
@@ -58,8 +59,8 @@ int	main( int argc, char **argv ) {
 	std::cout << buffer << "\n";
 
 	sleep(5);
-	mes = "PRIVMSG ton emm u here?\r\n";
-	send(sock, mes.c_str(), mes.size(), 0);
+//	mes = "PRIVMSG ayo emm u here?\r\n";
+//	send(sock, mes.c_str(), mes.size(), 0);
 
 	memset(buffer, 0, sizeof buffer);
 	valread = read(sock, buffer, 1024);

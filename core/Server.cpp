@@ -119,13 +119,32 @@ int Server::request(int fd) {
 //	return IRC_OK;
 }
 
-int Server::response(int fd) {
+int Server::response(int fd, unsigned dataSize) {
 	int lenSent;
-
 	std::string repl = clients[fd]->getReply();
-	lenSent = send(fd, repl.c_str(), repl.size(), 0);
+
+	if (repl.size() <= dataSize) {
+		lenSent = send(fd, repl.c_str(), repl.size(), 0);
+		clients[fd]->clearReply();
+		// clearRequest();
+	} else {
+		unsigned offset = clients[fd]->getOffset();
+		lenSent = send(fd, repl.c_str() + offset, dataSize, 0);
+//		lenSent = send(client->getFd(), client->getResponse()->getText() + offset, event.data, 0);
+		clients[fd]->setOffset(offset + lenSent);
+		if (lenSent > 0)
+			addEvent(WRITE_EVENT, fd);
+	}
 	return lenSent;
 }
+
+//int Server::response(int fd) {
+//	int lenSent;
+//
+//	std::string repl = clients[fd]->getReply();
+//	lenSent = send(fd, repl.c_str(), repl.size(), 0);
+//	return lenSent;
+//}
 
 int Server::processEvents() {
 	int new_events_num;
@@ -146,6 +165,7 @@ int Server::processEvents() {
 		} else if (event.filter == EVFILT_READ) {
 //			std::cout << "read event\n";
 			int ret = request(event.ident);
+			std::cout << "req\n";
 			if (ret == DONE_READING)
 				addEvent(WRITE_EVENT, eventFd);
 			else if (ret == NEED_MORE)
@@ -154,9 +174,10 @@ int Server::processEvents() {
 				disconnectClient(eventFd);
 		} else if (event.filter == EVFILT_WRITE) {
 //			std::cout << "write event\n";
-			response(event.ident);
-			//	if (lenSent <= 0)
-			//		disconnectClient()
+			int ret = response(event.ident, event.data);
+			std::cout << "resp\n";
+			if (ret <= 0)
+				disconnectClient(eventFd);
 		} else
 			disconnectClient(eventFd);
 	}
