@@ -2,31 +2,71 @@
 # define IRC_CLIENT_HPP
 
 # include <string>
-# include "Socket.hpp"
+//# include "Socket.hpp"
 # include "Channel.hpp"
+# include "../cmd/replies.hpp"
 
+class Channel;
 
-class Client : public Socket {
-	std::string nickname;
-	std::string realName;
+enum RegistrationState {
+//	START,
+	PASSWORD,
+	NICKNAME,
+	USERNAME,
+	DONE,
+};
+
+enum RequestState {
+	BAD_REQUEST,
+	NEED_MORE,
+	DONE_READING,
+};
+
+class Client {
+	std::string password;
+	std::string nickname; // appears for other users
+	std::string username; // used to log in
+	std::string realname;
+	std::string hostname;
 
 	std::string reply;
 	std::vector<Channel*> channels;
+	RegistrationState state;
+	int fd;
+
+	std::string request;
 
 public:
-	Client(int fd);
+	Client(int fd, std::string host);
 	~Client();
-//	void reply(std::string mes);
-	void setReply(std::string mes);
-	std::string getReply();
-	std::string getNickname();
-	std::string getRealName();
 
+	int getFd();
+	void addRequest(std::string mes) {request.append(mes);}
+	std::string &getRequest() {return request;}
+	void clearRequest() {request.clear();}
+	bool isRegistered();
+	void addReply(std::string mes);
+	void addReply(std::string serv, std::string mes);
+	void setReply(std::string mes);
+	void clearReply();
+	std::string getReply();
+
+	void setState(RegistrationState new_state);
+	RegistrationState getState();
+	void setPassword(std::string &pass);
+	void setNickname(std::string &nick);
+	void setUsername(std::string &name);
+	void setRealname(std::string &name);
+	std::string getNickname();
+	std::string getRealname();
 	std::string getPrefix();
+
 	void joinChannel(Channel *channel);
 	void leaveChannel(Channel *channel);
 	int getChannelNum();
 	Channel *getChannel(std::string name);
+
+	void welcome();
 };
 
 

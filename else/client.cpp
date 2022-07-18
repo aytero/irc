@@ -16,7 +16,7 @@ int	main( int argc, char **argv ) {
 	int		valread;
 	struct sockaddr_in	serv_addr;
 	//								 1718 :21		len=62
-	char	*mes = "GET /f HTTP/1.1\r\nHost: localhost:8000\r\nAccept-Language: fr\r\n\r\n";
+//	char	*mes = "GET /f HTTP/1.1\r\nHost: localhost:8000\r\nAccept-Language: fr\r\n\r\n";
 	char	buffer[1024] = {0};
 
 	if ((sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
@@ -38,8 +38,20 @@ int	main( int argc, char **argv ) {
 	}
 
 	sleep(3);
-	send(sock, mes, strlen(mes), 0);
-//	std::cout << "Message sent\n";
+	std::string mes = "PASS www\r\n";
+	send(sock, mes.c_str(), mes.size(), 0);
+
+	valread = read(sock, buffer, 1024);
+	std::cout << buffer << "\n";
+
+	mes = "NICK ayo\r\n";
+	send(sock, mes.c_str(), mes.size(), 0);
+
+	valread = read(sock, buffer, 1024);
+	std::cout << buffer << "\n";
+
+	mes = "USER aytero 0 * asya\r\n";
+	send(sock, mes.c_str(), mes.size(), 0);
 
 	valread = read(sock, buffer, 1024);
 	std::cout << buffer << "\n";

@@ -1,5 +1,5 @@
-#include "commands.hpp"
+#include "Command.hpp"
 
-void ModeCommand::execute(Server *server, Client *client, std::vector <std::string> args) {
+void ModeCommand::execute(Client *client, std::vector <std::string> args) {
 	;
 }

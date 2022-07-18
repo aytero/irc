@@ -9,7 +9,7 @@ Server::Server(const char *port, const char *pass) : port(port), password(pass) 
 	if (addEvent(READ_EVENT, listeningSocket) == IRC_ERROR) {
 		exit(1);
 	}
-	commandHandler = new CommandHandler;
+	commandHandler = new CommandHandler(this);
 }
 
 Server::~Server() {
@@ -69,7 +69,7 @@ int Server::acceptConnection(int event_fd) {
 		return IRC_ERROR;
 	}
 	std::cout << "accept here\n";
-	Client *newClient = new Client(client_fd);
+	Client *newClient = new Client(client_fd, getHostname());
 	clients.insert(std::pair<int,Client*>(newClient->getFd(), newClient));
 	return IRC_OK;
 }
@@ -91,26 +91,38 @@ int Server::acceptConnection(int event_fd) {
 //}
 
 int Server::request(int fd) {
-	std::string message;
+//	std::string message;
 	char buffer[100];
+	int lenRead;
 
 	memset(buffer, 0, sizeof buffer);
-	while (!std::strstr(buffer, "\r\n")) {
-		if (recv(fd, buffer, 100, 0) < 0) {
-			// if (errno != EWOULDBLOCK)
-			throw std::runtime_error("Error: socket creation.");
-		}
-		message.append(buffer);
+	lenRead = recv(fd, buffer, 100, 0);
+	if (lenRead > 0) {
+		clients[fd]->addRequest(buffer);
+//		message.append(buffer);
+		if (!std::strstr(buffer, "\r\n"))
+			return NEED_MORE;
+		clients[fd]->clearReply();
+		commandHandler->handle(clients[fd], clients[fd]->getRequest());
+		clients[fd]->clearRequest();
+		return DONE_READING;
 	}
-	commandHandler->handle(clients[fd], message);
-	return IRC_OK;
+	return BAD_REQUEST;
+//	while (!std::strstr(buffer, "\r\n")) {
+//		if (recv(fd, buffer, 100, 0) > 0) {
+//			message.append(buffer);
+//		} else {
+//			std::cout << "some err\n";
+////			break;
+//		}
+//	}
+//	return IRC_OK;
 }
 
 int Server::response(int fd) {
 	int lenSent;
 
-//	clients[fd]->response();
-	std::string repl = clients[fd]->getReply(); // serialize?
+	std::string repl = clients[fd]->getReply();
 	lenSent = send(fd, repl.c_str(), repl.size(), 0);
 	return lenSent;
 }
@@ -132,10 +144,19 @@ int Server::processEvents() {
 		else if (eventFd == listeningSocket) {
 			acceptConnection(event.ident);
 		} else if (event.filter == EVFILT_READ) {
-			request(event.ident);
-			addEvent(WRITE_EVENT, eventFd);
+//			std::cout << "read event\n";
+			int ret = request(event.ident);
+			if (ret == DONE_READING)
+				addEvent(WRITE_EVENT, eventFd);
+			else if (ret == NEED_MORE)
+				addEvent(READ_EVENT, eventFd);
+			else
+				disconnectClient(eventFd);
 		} else if (event.filter == EVFILT_WRITE) {
+//			std::cout << "write event\n";
 			response(event.ident);
+			//	if (lenSent <= 0)
+			//		disconnectClient()
 		} else
 			disconnectClient(eventFd);
 	}
@@ -156,15 +177,25 @@ int Server::run() {
 	return IRC_OK;
 }
 
-void Server::createChannel(std::string name, str::string key, Client *client) {
+void Server::createChannel(std::string name, std::string key, Client *client) {
 	Channel *channel = new Channel(name, key);
 	channel->setOp(client);
 }
 
-Channel *Server::getChannel(str::string name) {
-	for (int i = 0; i < channels.size(); ++i) {
+Channel *Server::getChannel(std::string name) {
+	for (unsigned long i = 0; i < channels.size(); ++i) {
 		if (channels[i]->getName() == name)
 			return channels[i];
+	}
+	return 0;
+}
+
+Client *Server::getClient(std::string nick) {
+	std::map<int,Client*>::iterator it = clients.begin();
+	std::map<int,Client*>::iterator ite = clients.end();
+	for (; it != ite; ++it) {
+		if (it->second->getNickname() == nick)
+			return it->second;
 	}
 	return 0;
 }

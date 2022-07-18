@@ -3,10 +3,13 @@
 
 # include <string>
 # include <vector>
+# include "Server.hpp"
 
 # define SERVER_MAX_CHANNELS 50
 # define USER_MAX_CHANNELS 10
 # define MAX_USERS
+
+class Client;
 
 class Channel {
 	std::string name;
@@ -19,14 +22,15 @@ class Channel {
 public:
 	Channel(std::string name, std::string key);
 	Channel();
-	Channel(const Channel *ref);
+	Channel(const Channel &ref);
 	~Channel();
-	Channel *operator=(const Channel *ref);
+	Channel &operator=(const Channel &ref);
 
 	std::string getName();
 	bool isFull();
 	bool checkIfBanned(std::string nick);
 	std::string getKey();
+	void setOp(Client *client) {}
 };
 
 

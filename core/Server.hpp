@@ -17,12 +17,11 @@
 # include "Client.hpp"
 # include "Channel.hpp"
 # include "cmd/CommandHandler.hpp"
-# include "cmd/Command.hpp"
 
 # define MAX_EVENTS 128
 
-class Command;
 class CommandHandler;
+class Channel;
 
 enum EventType {
 	READ_EVENT,
@@ -63,9 +62,12 @@ public:
 	~Server();
 	int run();
 
-	void createChannel(std::string name, str::string key, Client *client);
-	Channel *getChannel(str::string name);
+	void createChannel(std::string name, std::string key, Client *client);
+	Channel *getChannel(std::string name);
 	int getChannelNum();
+
+	Client *getClient(std::string nick);
+	std::string getHostname() {return "irc.example.com"; }
 
 	enum returnStatus {
 		IRC_OK = 0,

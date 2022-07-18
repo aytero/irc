@@ -4,8 +4,11 @@ OBJS_DIR			= ./objs
 
 CXX_HEADERS			= .
 
-CXX_FILES			= main.cpp cmd/Command.cpp cmd/CommandHandler.cpp cmd/commands.cpp \
-						core/Server.cpp core/Socket.cpp core/Client.cpp
+CXX_FILES			= main.cpp cmd/Command.cpp cmd/CommandHandler.cpp \
+						core/Server.cpp core/Socket.cpp core/Client.cpp core/Channel.cpp\
+						cmd/PasswordCommand.cpp cmd/NickCommand.cpp cmd/UserCommand.cpp
+#						cmd/JoinCommand.cpp cmd/PartCommand.cpp cmd/PrivMsgCommand.cpp \
+#						cmd/PingCommand.cpp cmd/NamesCommand.cpp
 
 CXX_DIRS			= $(dir $(CXX_FILES))
 vpath %.cpp $(CXX_DIRS)
@@ -15,7 +18,8 @@ OBJS				= $(addprefix $(OBJS_DIR)/, $(notdir $(CXX_FILES:.cpp=.o)))
 DEPENDENCIES		= $(OBJS:.o=.d)
 
 CC					= c++
-CFLAGS				= -std=c++98 -O3 -Wall -Werror -Wextra -I$(CXX_HEADERS)
+CFLAGS				= -std=c++98 -O3 -I$(CXX_HEADERS)
+#CFLAGS				= -std=c++98 -O3 -Wall -Werror -Wextra -I$(CXX_HEADERS)
 LINKER				= $(CFLAGS)
 
 AR					= ar

@@ -2,10 +2,10 @@
 
 Channel::Channel(std::string name, std::string key) : name(name), key(key) {}
 Channel::Channel() :name(""), key("") {}
-Channel::Channel(const Channel *ref) : name(ref.name), key(ref.key), banlist(ref.banlist),
+Channel::Channel(const Channel &ref) : name(ref.name), key(ref.key), banlist(ref.banlist),
 						userNum(ref.userNum), maxUserNum(ref.maxUserNum), users(ref.users) {}
 Channel::~Channel() {}
-Channel *Channeloperator=(const Channel *ref) {
+Channel &Channel::operator=(const Channel &ref) {
 	if (this != &ref) {
 		name = ref.name;
 		key = ref.key;
