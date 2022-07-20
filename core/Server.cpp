@@ -1,6 +1,11 @@
 #include "Server.hpp"
+//#include "Channel.hpp"
+//# include "cmd/CommandHandler.hpp"
 
 Server::Server(const char *port, const char *pass) : port(port), password(pass) {
+
+	hostname = "irc.example.com";
+
 	kq = kqueue();
 	if (kq == -1) {
 		exit(1);
@@ -29,6 +34,16 @@ int Server::addEvent(int eventType, int fd) {
 		return IRC_ERROR;
 	}
 	return IRC_OK;
+}
+
+void Server::broadcastEvent(Client *exclude) {
+	client_it it = clients.begin();
+	client_it ite = clients.end();
+
+	for (; it != ite; ++it) {
+		if (it->second != exclude)
+			addEvent(WRITE_EVENT, it->second->getFd());
+	}
 }
 
 void Server::initListeningSocket() {
@@ -198,9 +213,11 @@ int Server::run() {
 	return IRC_OK;
 }
 
-void Server::createChannel(std::string name, std::string key, Client *client) {
+Channel *Server::createChannel(std::string name, std::string key, Client *client) {
 	Channel *channel = new Channel(name, key);
+	channels.push_back(channel);
 	channel->setOp(client);
+	return channel;
 }
 
 Channel *Server::getChannel(std::string name) {
@@ -209,6 +226,10 @@ Channel *Server::getChannel(std::string name) {
 			return channels[i];
 	}
 	return 0;
+}
+
+int Server::getChannelNum() {
+	return channels.size();
 }
 
 Client *Server::getClient(std::string nick) {
@@ -232,12 +253,14 @@ void Server::disconnectAllClients() {
 	std::map<int,Client*>::iterator ite = clients.end();
 	for (; it != ite; ++it) {
 		delete it->second;
+		it->second->leaveAllChannels();
 		clients.erase(it);
 	}
 	clients.clear();
 }
 
 void Server::disconnectClient(int fd) {
+	clients[fd]->leaveAllChannels();
 	delete clients[fd];
 	clients.erase(fd);
 }

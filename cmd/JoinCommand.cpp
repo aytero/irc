@@ -1,4 +1,6 @@
 #include "Command.hpp"
+#include "../core/Channel.hpp"
+//#include "../core/Server.hpp"
 
 JoinCommand::JoinCommand(bool auth, Server *server) : Command(auth, server) {}
 //JoinCommand::JoinCommand(const JoinCommand &ref) {}
@@ -7,7 +9,7 @@ JoinCommand::~JoinCommand() {}
 
 void JoinCommand::execute(Client *client, std::vector<std::string> args) {
 	if (args.empty()) {
-		client->setReply(ERR_NEEDMOREPARAMS(std::string("JOIN")));
+		client->addReply(ERR_NEEDMOREPARAMS(std::string("JOIN")));
 		return;
 	}
 	if (args[0] == "0") {
@@ -18,25 +20,29 @@ void JoinCommand::execute(Client *client, std::vector<std::string> args) {
 	std::string key = "";
 	if (args.size() > 1)
 		key = args[1];
-	if (server->getChannelNum() > SERVER_MAX_CHANNELS || client->getChannelNum() > CLIENT_MAX_CHANNELS) {
-		client->setReply(ERR_TOOMANYCHANNELS());
+	if (server_->getChannelNum() > SERVER_MAX_CHANNELS || client->getChannelNum() > USER_MAX_CHANNELS) {
+		client->addReply(server_->getHostname(), "405", ERR_TOOMANYCHANNELS(chanName));
 		return;
 	}
 
-	Channel *channel = server->getChannel(chanName);
+	Channel *channel = server_->getChannel(chanName);
+//	logger::debug(SSTR(chanName << " channel name (JOIN)"));
 	if (!channel) {
-		channel = server->createChannel(chanName, key, client);
-		return;
+		channel = server_->createChannel(chanName, key, client);
 	}
 	// check invite if invite-only
 	if (channel->isFull()) {
-		client->setReply(ERR_CHANNELISFULL(chanName));
+		client->addReply(server_->getHostname(), "471", ERR_CHANNELISFULL(chanName));
 	} else if (channel->checkIfBanned(client->getNickname())) {
-		client->setReply(ERR_BANNEDFROMCHAN(chanName));
+		client->addReply(server_->getHostname(), "474", ERR_BANNEDFROMCHAN(chanName));
 	} else if (channel->getKey() != key) {
-		client->setReply(ERR_BADCHANNELKEY(chanName, key));
+		client->addReply(server_->getHostname(), "475", ERR_BADCHANNELKEY(chanName, key));
 	} else {
 		client->joinChannel(channel);
-//		client->setReply(RPL_TOPIC());
+		std::string &topic = channel->getTopic();
+		if (topic == "")
+			client->addReply(RPL_NOTOPIC(chanName));
+		else
+			client->addReply(RPL_TOPIC(chanName, topic));
 	}
 }

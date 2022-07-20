@@ -1,6 +1,8 @@
 #ifndef IRC_COMMANDHANDLER_HPP
 # define IRC_COMMANDHANDLER_HPP
 
+class CommandHandler;
+
 # include <string>
 # include <vector>
 # include <map>
@@ -8,10 +10,9 @@
 # include <iostream>
 
 # include "Command.hpp"
-# include "../core/Server.hpp"
+//# include "../core/Client.hpp"
 
-class Command;
-class Server;
+//class Server;
 
 class CommandHandler {
 	std::map<std::string, Command*> commands;

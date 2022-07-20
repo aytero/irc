@@ -62,9 +62,18 @@ int	main( int argc, char **argv ) {
 //	mes = "PRIVMSG ayo emm u here?\r\n";
 //	send(sock, mes.c_str(), mes.size(), 0);
 
+//	memset(buffer, 0, sizeof buffer);
+//	valread = read(sock, buffer, 1024);
+//	std::cout << buffer << "\n";
+
+	mes = "JOIN #hbd\r\n";
+	send(sock, mes.c_str(), mes.size(), 0);
 	memset(buffer, 0, sizeof buffer);
 	valread = read(sock, buffer, 1024);
 	std::cout << buffer << "\n";
 
+	memset(buffer, 0, sizeof buffer);
+	valread = read(sock, buffer, 1024);
+	std::cout << buffer << "\n";
 	return (0);
 }

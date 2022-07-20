@@ -1,12 +1,21 @@
 #ifndef IRC_CLIENT_HPP
 # define IRC_CLIENT_HPP
 
+class Client;
+
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <unistd.h>
+# include <fcntl.h>
+
 # include <string>
+# include <iostream>
+# include <map>
 //# include "Socket.hpp"
 # include "Channel.hpp"
 # include "../cmd/replies.hpp"
 
-class Channel;
+//class Channel;
 
 enum RegistrationState {
 //	START,
@@ -30,7 +39,7 @@ class Client {
 	std::string hostname;
 
 	std::string reply;
-	std::vector<Channel*> channels;
+	std::map<std::string, Channel*> channels;
 	RegistrationState state;
 	int fd;
 
@@ -62,12 +71,13 @@ public:
 	void setNickname(std::string &nick);
 	void setUsername(std::string &name);
 	void setRealname(std::string &name);
-	std::string getNickname();
-	std::string getRealname();
+	std::string &getNickname();
+	std::string &getRealname();
 	std::string getPrefix();
 
 	void joinChannel(Channel *channel);
 	void leaveChannel(Channel *channel);
+	void leaveAllChannels();
 	int getChannelNum();
 	Channel *getChannel(std::string name);
 

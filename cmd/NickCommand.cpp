@@ -1,4 +1,5 @@
 #include "Command.hpp"
+//#include "../core/Server.hpp"
 #include <cctype>
 
 NickCommand::NickCommand(bool auth, Server *server) : Command(auth, server) {}

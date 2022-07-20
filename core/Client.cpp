@@ -53,6 +53,30 @@ std::string Client::getReply() {
 	return reply;
 }
 
+void Client::joinChannel(Channel *channel) {
+	channel->addUser(this);
+	channels.insert(std::make_pair(channel->getName(), channel));
+}
+
+void Client::leaveChannel(Channel *channel) {
+	std::map<std::string,Channel*>::iterator it = channels.begin();
+	std::map<std::string,Channel*>::iterator ite = channels.end();
+	for (; it != ite; ++it) {
+		if (it->second == channel) {
+			channel->removeUser(nickname);
+			channels.erase(it);
+		}
+	}
+}
+
+void Client::leaveAllChannels() {
+	channels.clear();
+}
+
+int Client::getChannelNum() {
+	return channels.size();
+}
+
 void Client::setState(RegistrationState new_state) {
 	state = new_state;
 }
@@ -77,9 +101,9 @@ void Client::setRealname(std::string &name) {
 	realname = name;
 }
 
-std::string Client::getNickname() {
+std::string &Client::getNickname() {
 	return nickname;
 }
-std::string Client::getRealname() {
+std::string &Client::getRealname() {
 	return realname;
 }

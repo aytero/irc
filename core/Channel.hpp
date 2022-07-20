@@ -1,15 +1,16 @@
 #ifndef IRC_CHANNEL_HPP
 # define IRC_CHANNEL_HPP
 
+class Channel;
+
 # include <string>
 # include <vector>
-# include "Server.hpp"
 
 # define SERVER_MAX_CHANNELS 50
 # define USER_MAX_CHANNELS 10
 # define MAX_USERS
 
-class Client;
+# include "Client.hpp"
 
 class Channel {
 	std::string name;
@@ -18,6 +19,10 @@ class Channel {
 	int maxUserNum;
 	std::vector<Client*> users;
 	std::vector<std::string> banlist;
+	std::vector<Client*> operators;
+	std::string topic;
+
+	bool modeN;
 
 public:
 	Channel(std::string name, std::string key);
@@ -26,11 +31,17 @@ public:
 	~Channel();
 	Channel &operator=(const Channel &ref);
 
+	void broadcast(std::string mes, Client *exclude);
 	std::string getName();
 	bool isFull();
 	bool checkIfBanned(std::string nick);
 	std::string getKey();
-	void setOp(Client *client) {}
+	void setOp(Client *client);
+	void addUser(Client *client);
+	std::string &getTopic();
+	bool outsideMessageAllowed();
+	Client *findUser(std::string &nick);
+	void removeUser(std::string &nick);
 };
 
 

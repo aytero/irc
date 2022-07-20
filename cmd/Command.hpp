@@ -1,41 +1,49 @@
 #ifndef IRC_COMMAND_HPP
 # define IRC_COMMAND_HPP
 
+class Command;
+
 # include <iostream>
 # include <string>
 # include <vector>
-# include "../core/Server.hpp"
-# include "../core/Client.hpp"
 # include "replies.hpp"
+//# include "../logger/Logger.hpp"
 
-class Server;
-class Client;
+//# include "../core/Channel.hpp"
+# include "../core/Server.hpp"
+
+//class Server;
+//class Client;
 
 class Command {
 protected:
 	bool authRequired_;
 	Server *server_;
+//	std::string serv_hostname;
 
 public:
 	Command();
 	Command(bool auth, Server *server);
+//	Command(bool auth, Server *server, std::string serv_host);
 	Command(const Command &ref);
 	Command &operator=(const Command &ref);
 	virtual ~Command();
 
 	virtual void execute(Client *client, std::vector<std::string> args) = 0;
 	bool authRequired() const;
+//	friend std::string &getHostname()
 };
 
-//class JoinCommand : public Command {
-//public:
-//	JoinCommand(bool auth, Server *server);
-//	//	JoinCommand(const JoinCommand &ref);
-//	~JoinCommand();
-//	//	JoinCommand &operator=(const JoinCommand &ref);
-//
-//	void execute(Client *client, std::vector<std::string> args);
-//};
+class JoinCommand : public Command {
+public:
+	JoinCommand(bool auth, Server *server);
+	//	JoinCommand(const JoinCommand &ref);
+	~JoinCommand();
+	//	JoinCommand &operator=(const JoinCommand &ref);
+
+	void execute(Client *client, std::vector<std::string> args);
+};
+
 //
 //class PingCommand : public Command {
 //public:

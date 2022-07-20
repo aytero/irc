@@ -1,4 +1,5 @@
 #include "Command.hpp"
+//#include "../core/Server.hpp"
 
 PasswordCommand::PasswordCommand(bool auth, Server *server) : Command(auth, server) {}
 

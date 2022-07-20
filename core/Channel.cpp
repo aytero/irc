@@ -1,6 +1,6 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string name, std::string key) : name(name), key(key) {}
+Channel::Channel(std::string name, std::string key) : name(name), key(key), topic(""), modeN(false) {}
 Channel::Channel() :name(""), key("") {}
 Channel::Channel(const Channel &ref) : name(ref.name), key(ref.key), banlist(ref.banlist),
 						userNum(ref.userNum), maxUserNum(ref.maxUserNum), users(ref.users) {}
@@ -18,6 +18,14 @@ Channel &Channel::operator=(const Channel &ref) {
 }
 
 
+void Channel::broadcast(std::string mes, Client *exclude) {
+	std::cout << mes << " bc mes\n";
+	for (int i = 0; i < users.size(); ++i) {
+		if (users[i] != exclude)
+			users[i]->addReply(mes);
+	}
+}
+
 bool Channel::isFull() {
 	if (userNum + 1 == maxUserNum)
 		return true;
@@ -32,6 +40,31 @@ bool Channel::checkIfBanned(std::string nick) {
 	return false;
 }
 
+Client *Channel::findUser(std::string &nick) {
+	for (int i = 0; i < users.size(); ++i) {
+		if (users[i]->getNickname() == nick)
+			return users[i];
+	}
+	return 0;
+}
+
+void Channel::removeUser(std::string &nick) {
+	for (int i = 0; i < users.size(); ++i) {
+		if (users[i]->getNickname() == nick) {
+			users[i] = 0;
+			return;
+		}
+	}
+}
+
+void Channel::setOp(Client *client) {
+	operators.push_back(client);
+}
+
+void Channel::addUser(Client *client) {
+	users.push_back(client);
+}
+
 std::string Channel::getName() {
 	return name;
 }
@@ -40,3 +73,10 @@ std::string Channel::getKey() {
 	return key;
 }
 
+std::string &Channel::getTopic() {
+	return topic;
+}
+
+bool Channel::outsideMessageAllowed() {
+	return modeN;
+}

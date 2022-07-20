@@ -12,10 +12,11 @@
 # define ERR_NOSUCHCHANNEL(channel) channel + " :No such channel" // 403
 # define ERR_NOTONCHANNEL(channel) channel + " :You are not on that channel"
 
-# define ERR_TOOMANYCHANNELS(channel) channel name + " :You have joined too many channels"
+# define ERR_TOOMANYCHANNELS(channel) channel + " :You have joined too many channels"
 # define ERR_CHANNELISFULL(channel) channel + " :Cannot join channel (+l)"
 # define ERR_BANNEDFROMCHAN(channel) channel + " :Cannot join channel (+b)"
 # define ERR_BADCHANNELKEY(channel, key) channel + " :Cannot join channel (+k)"
+
 # define ERR_NOTREGISTERED() ":You have not registered"
 # define ERR_UNKNOWNCOMMAND(command) command + " :Unknown command"
 # define ERR_NOTEXTTOSEND() ":No text to send" //412
@@ -25,9 +26,13 @@
 //:irc.example.com 001 borja :Welcome to the Internet Relay Network borja!borja@polaris.cs.uchicago.edu
 # define RPL_WELCOME(prefix) ":Welcome to the Internet Replay Network " + prefix
 //# define RPL_WELCOME(prefix) ":Welcome to the Internet Replay Network " + prefix
-# define RPL_PRIVMSG(from, message) "PRIVMSG " + from + " :" + message
+# define RPL_PRIVMSG(from, target, message) from +" PRIVMSG " + target + " :" + message
 
 # define RPL_YOURHOST(servername, ver) ":Your host is " + servername + ", running version " + ver
 # define RPL_MYINFO(servername, version, userModes, chanModes) ":" + servername + " " + version + " " + userModes + " " + chanModes
+
+# define RPL_NOTOPIC(channel) channel + " :No topic is set"
+//332    RPL_TOPIC
+# define RPL_TOPIC(channel, topic) channel + " :" + topic
 
 #endif //IRC_REPLIES_HPP
