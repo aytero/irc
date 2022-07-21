@@ -11,6 +11,8 @@ class Client;
 # include <string>
 # include <iostream>
 # include <map>
+
+# include "../logger/Logger.hpp"
 //# include "Socket.hpp"
 # include "Channel.hpp"
 # include "../cmd/replies.hpp"
@@ -46,6 +48,8 @@ class Client {
 	std::string request;
 	unsigned int offset_;
 
+	typedef std::map<std::string,Channel*>::iterator chan_it;
+
 public:
 	Client(int fd, std::string host);
 	~Client();
@@ -56,8 +60,8 @@ public:
 	void clearRequest() {request.clear(); request = "";}
 	bool isRegistered();
 	void addReply(std::string mes);
-	void addReply(std::string source, std::string mes);
-	void addReply(std::string source, std::string numeric, std::string mes);
+	void addReply(std::string from, std::string mes);
+	//void addReply(std::string source, std::string numeric, std::string mes);
 	void setReply(std::string mes);
 	void clearReply();
 	std::string getReply();

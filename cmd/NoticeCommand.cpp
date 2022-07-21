@@ -1,22 +1,25 @@
 #include "Command.hpp"
 
-PrivMsgCommand::PrivMsgCommand(bool auth, Server *server) : Command(auth, server) {}
+NoticeCommand::NoticeCommand(bool auth, Server *server) : Command(auth, server) {}
 
-void PrivMsgCommand::execute(Client *client, std::vector <std::string> args) {
+void NoticeCommand::execute(Client *client, std::vector <std::string> args) {
 	if (args.size() < 2) {
-		client->addReply(server_->getHostname(), ERR_NEEDMOREPARAMS(std::string("PrivMsg")));
+		client->addReply(server_->getHostname(), ERR_NEEDMOREPARAMS(std::string("NOTICE")));
 		return;
 	}
 	std::string targetName = args[0];
 	std::string message;
+
 	for (int i = 1; i < args.size(); ++i)
 		message.append(args[i] + " "); // SP after last word -.-
+
 	if (message.empty()) {
 		client->addReply(server_->getHostname(), ERR_NOTEXTTOSEND());
 		return;
 	}
-	logger::debug(SSTR("PRIVMSG target: " << targetName));
-	if (targetName[0] == '#') {
+
+	logger::debug(SSTR("NOTICE target: " << targetName));
+	if (targetName[0] == '#' || targetName[0] == '&') {
 		logger::debug("broadcast");
 		Channel *channel = server_->getChannel(targetName);
 		if (!channel) {
@@ -30,8 +33,7 @@ void PrivMsgCommand::execute(Client *client, std::vector <std::string> args) {
 			logger::debug(ERR_CANNOTSENDTOCHAN(targetName));
 			return;
 		}
-		channel->broadcast(RPL_PRIVMSG(client->getPrefix(), targetName, message));
-//		channel->broadcast(RPL_PRIVMSG(client->getPrefix(), targetName, message), client);
+		channel->broadcast(RPL_PRIVMSG(client->getPrefix(), targetName, message), client);
 		server_->broadcastEvent();
 		return;
 	}
@@ -41,7 +43,7 @@ void PrivMsgCommand::execute(Client *client, std::vector <std::string> args) {
 		logger::debug(ERR_NOSUCHNICK(targetName));
 		return;
 	}
-	target->addReply(RPL_PRIVMSG(client->getPrefix(), targetName, message));
+	target->addReply(RPL_NOTICE(client->getPrefix(), targetName, message));
 	// target add write event
 	server_->addEvent(WRITE_EVENT, target->getFd());
 }

@@ -16,8 +16,8 @@ class Server;
 # include <fcntl.h>
 # include <unistd.h>
 
-//# include "logger/Logger.hpp"
 
+# include "logger/Logger.hpp"
 //# include "Client.hpp"
 # include "Channel.hpp"
 # include "../cmd/CommandHandler.hpp"

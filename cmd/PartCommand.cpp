@@ -4,18 +4,27 @@ PartCommand::PartCommand(bool auth, Server *server) : Command(auth, server) {}
 
 void PartCommand::execute(Client *client, std::vector <std::string> args) {
 	if (args.empty()) {
-		client->addReply(ERR_NEEDMOREPARAMS("PART"));
+		client->addReply(server_->getHostname(), ERR_NEEDMOREPARAMS(std::string("PART")));
+		logger::debug(ERR_NEEDMOREPARAMS(std::string("PART")));
 		return;
 	}
+
 	Channel *channel;
 	std::string name = args[0];
-	channel = server->getChannel(name);
+	channel = server_->getChannel(name);
+
 	if (!channel) {
-		client->addReply(ERR_NOSUCHCHANNEL(name));
+		client->addReply(server_->getHostname(), ERR_NOSUCHCHANNEL(name));
 	} else if (client->getChannel(name) == 0) {
-		client->addReply(ERR_NOTONCHANNEL(name));
+		client->addReply(server_->getHostname(), ERR_NOTONCHANNEL(name));
 	} else {
-		client->leaveChannel(channel);
-//		repl.append()
+		client->leaveChannel(channel); // seg
+		std::string reason; // default reason
+		if (args.size() > 1) {
+			for (int i = 1; i < args.size(); ++i)
+			reason.append(args[i] + " "); // SP after last word _._
+		} else
+			reason = "left channel"; // default
+		client->addReply(RPL_PART(name, reason));
 	}
 }

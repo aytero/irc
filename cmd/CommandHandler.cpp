@@ -4,8 +4,9 @@ CommandHandler::CommandHandler() {}
 
 CommandHandler::CommandHandler(Server *server) {
 	commands["JOIN"] = new JoinCommand(true, server);
-//	commands["PART"] = new PartCommand(true, server);
+	commands["PART"] = new PartCommand(true, server);
 	commands["PRIVMSG"] = new PrivMsgCommand(true, server);
+	commands["QUIT"] = new QuitCommand(true, server);
 //	commands["PING"] = new PingCommand(true, server);
 	//	commands["PONG"] = new PongCommand();
 	commands["PASS"] = new PasswordCommand(false, server);
@@ -67,8 +68,10 @@ void CommandHandler::handle(Client *client, std::string &message) {
 //				std::cout << buf[0] << "\n";
 				args.push_back(buf);
 			}
+			//if (client->getState() != DONE)
+			//	client->getHelp();
 			if (command->authRequired() && !client->isRegistered()) {
-//				client->addReply(server_->getHostname(), "451", ERR_NOTREGISTERED());
+//				client->addReply(server_->getHostname(), ERR_NOTREGISTERED());
 				client->addReply(ERR_NOTREGISTERED());
 				return;
 			}

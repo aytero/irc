@@ -5,8 +5,6 @@
 # include <ctime>
 # include <sstream>
 
-//#define SSTR( x ) static_cast< std::ostringstream & >( \
-//        ( std::ostringstream() << std::dec << x ) ).str()
 # define SSTR( x ) static_cast<std::ostringstream &>( std::ostringstream() << std::dec << x ).str()
 
 # define GREY "\e[38;5;241m"
@@ -35,18 +33,41 @@ namespace logger {
 	void		print_time( void );
 
 	std::string	get_timestr( void );
-//
-//	template< typename T >
-//	void	error( T &message ) {
-//		if (getLogLevel() >= ERROR) {
-//			std::cerr << RED << '[' << get_timestr() << "] " << message << RESET << '\n';
-//		}
-//	}
 
 	void error( const std::string &message );
 	void warn( const std::string &message );
 	void info( const std::string &message );
 	void debug( const std::string &message );
+
+	template< typename T >
+	void	error( T &message ) {
+		if (getLogLevel() >= ERROR) {
+			std::cerr << RED << '[' << get_timestr() << "] " << message << RESET << '\n';
+		}
+	}
+
+	template< typename T >
+	void	warn( T &message ) {
+		if (getLogLevel() >= WARNING) {
+			std::cerr << YEL << '[' << get_timestr() << "] " << message << RESET << '\n';
+		}
+	}
+
+	template< typename T >
+	void	info( T &message ) {
+		if (getLogLevel() >= INFO) {
+			std::cout << GRN << '[' << get_timestr() << "] " << message << RESET << '\n';
+		}
+	}
+
+	template< typename T >
+	void	debug( T &message ) {
+		if (getLogLevel() >= DEBUG) {
+			std::cout << GREY << '[' << get_timestr() << "] " << message << RESET << '\n';
+		}
+	}
+
+
 };
 
 

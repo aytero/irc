@@ -1,6 +1,4 @@
 #include "Server.hpp"
-//#include "Channel.hpp"
-//# include "cmd/CommandHandler.hpp"
 
 Server::Server(const char *port, const char *pass) : port(port), password(pass) {
 
@@ -15,10 +13,11 @@ Server::Server(const char *port, const char *pass) : port(port), password(pass) 
 		exit(1);
 	}
 	commandHandler = new CommandHandler(this);
+	logger::info("IRC server configured successfully");
 }
 
 Server::~Server() {
-	std::cout << "serv destr\n";
+	logger::debug("serv destr\n");
 	shutdown();
 }
 
@@ -83,9 +82,9 @@ int Server::acceptConnection(int event_fd) {
 		close(client_fd);
 		return IRC_ERROR;
 	}
-	std::cout << "accept here\n";
 	Client *newClient = new Client(client_fd, getHostname());
 	clients.insert(std::pair<int,Client*>(newClient->getFd(), newClient));
+	logger::debug(SSTR("accepted client with fd " << client_fd));
 	return IRC_OK;
 }
 
@@ -105,6 +104,7 @@ int Server::acceptConnection(int event_fd) {
 //	return lenRead;
 //}
 
+// add size to read
 int Server::request(int fd) {
 //	std::string message;
 	char buffer[100];
@@ -113,6 +113,7 @@ int Server::request(int fd) {
 	memset(buffer, 0, sizeof buffer);
 	lenRead = recv(fd, buffer, 100, 0);
 	if (lenRead > 0) {
+		logger::debug(SSTR("fd: " << fd << " read: " << buffer));
 		clients[fd]->addRequest(buffer);
 //		message.append(buffer);
 		if (!std::strstr(buffer, "\r\n"))
@@ -180,7 +181,6 @@ int Server::processEvents() {
 		} else if (event.filter == EVFILT_READ) {
 //			std::cout << "read event\n";
 			int ret = request(event.ident);
-			std::cout << "req\n";
 			if (ret == DONE_READING)
 				addEvent(WRITE_EVENT, eventFd);
 			else if (ret == NEED_MORE)
@@ -190,7 +190,6 @@ int Server::processEvents() {
 		} else if (event.filter == EVFILT_WRITE) {
 //			std::cout << "write event\n";
 			int ret = response(event.ident, event.data);
-			std::cout << "resp\n";
 			if (ret <= 0)
 				disconnectClient(eventFd);
 		} else
@@ -200,9 +199,10 @@ int Server::processEvents() {
 }
 
 int Server::run() {
+	logger::info("Running IRC server");
 	for (;;) {
 		if (processEvents() == IRC_ERROR) {
-			std::cout << "err\n";
+			logger::debug("err");
 			break;
 		}
 //		if (terminate || quit) {
@@ -248,13 +248,14 @@ void Server::shutdown() {
 	close(listeningSocket);
 }
 
+
 void Server::disconnectAllClients() {
-	std::map<int,Client*>::iterator it = clients.begin();
-	std::map<int,Client*>::iterator ite = clients.end();
-	for (; it != ite; ++it) {
+	client_it it = clients.begin();
+	client_it ite = clients.end();
+	while (it != ite) {
 		delete it->second;
 		it->second->leaveAllChannels();
-		clients.erase(it);
+		it = clients.erase(it);
 	}
 	clients.clear();
 }

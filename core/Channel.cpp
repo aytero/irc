@@ -19,7 +19,7 @@ Channel &Channel::operator=(const Channel &ref) {
 
 
 void Channel::broadcast(std::string mes, Client *exclude) {
-	std::cout << mes << " bc mes\n";
+	logger::debug("broadcast message: " + mes);
 	for (int i = 0; i < users.size(); ++i) {
 		if (users[i] != exclude)
 			users[i]->addReply(mes);
@@ -57,19 +57,31 @@ void Channel::removeUser(std::string &nick) {
 	}
 }
 
+bool Channel::isOp(const Client *client) {
+	for (int i = 0; i < operators.size(); ++i) {
+		if (operators[i] == client)
+			return true;
+	}
+	return false;
+}
+
 void Channel::setOp(Client *client) {
 	operators.push_back(client);
+}
+
+void Channel::setTopic(std::string &topic) {
+	this->topic = topic;
 }
 
 void Channel::addUser(Client *client) {
 	users.push_back(client);
 }
 
-std::string Channel::getName() {
+std::string &Channel::getName() {
 	return name;
 }
 
-std::string Channel::getKey() {
+std::string &Channel::getKey() {
 	return key;
 }
 

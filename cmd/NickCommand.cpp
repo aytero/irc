@@ -32,14 +32,14 @@ bool NickCommand::validate(std::string nickname) {
 
 void NickCommand::execute(Client *client, std::vector <std::string> args) {
 	if (args.empty() || args[0] == "") {
-		client->addReply(ERR_NONICKNAMEGIVEN());
+		client->addReply(server_->getHostname(), ERR_NONICKNAMEGIVEN());
 		return;
 	}
 	std::string nick = args[0];
 	if (server_->getClient(nick)) {// use lowercasing to check?
-		client->addReply(ERR_NICKNAMEINUSE(nick));
+		client->addReply(server_->getHostname(), ERR_NICKNAMEINUSE(nick));
 	} else if (!validate(nick)) {
-		client->addReply(ERR_ERRONEUSNICKNAME(nick));
+		client->addReply(server_->getHostname(), ERR_ERRONEUSNICKNAME(nick));
 	} else {
 		client->setNickname(nick);
 		if (client->getState() != DONE) {

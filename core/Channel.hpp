@@ -31,11 +31,13 @@ public:
 	~Channel();
 	Channel &operator=(const Channel &ref);
 
-	void broadcast(std::string mes, Client *exclude);
-	std::string getName();
+	void broadcast(std::string mes, Client *exclude = 0);
+	std::string &getName();
 	bool isFull();
 	bool checkIfBanned(std::string nick);
-	std::string getKey();
+	std::string &getKey();
+	void setTopic(std::string &topic);
+	bool isOp(const Client *client);
 	void setOp(Client *client);
 	void addUser(Client *client);
 	std::string &getTopic();

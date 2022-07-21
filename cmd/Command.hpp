@@ -9,11 +9,11 @@ class Command;
 # include "replies.hpp"
 //# include "../logger/Logger.hpp"
 
-//# include "../core/Channel.hpp"
 # include "../core/Server.hpp"
 
-//class Server;
-//class Client;
+
+// todo: Ping Pong Kick Mode Notice Topic
+// Oper ?
 
 class Command {
 protected:
@@ -58,22 +58,34 @@ public:
 //	NamesCommand(bool auth, Server *server);
 //	void execute(Client *client, std::vector<std::string> args);
 //};
-//
-//class PartCommand : public Command {
-//public:
-//	PartCommand(bool auth, Server *server);
-//	void execute(Client *client, std::vector<std::string> args);
-//};
-//
+
+class PartCommand : public Command {
+public:
+	PartCommand(bool auth, Server *server);
+	void execute(Client *client, std::vector<std::string> args);
+};
+
 //class ModeCommand : public Command {
 //public:
 //	ModeCommand(bool auth, Server *server);
 //	void execute(Client *client, std::vector<std::string> args);
 //};
 
+class TopicCommand : public Command {
+public:
+	TopicCommand(bool auth, Server *server);
+	void execute(Client *client, std::vector<std::string> args);
+};
+
 class PrivMsgCommand : public Command {
 public:
 	PrivMsgCommand(bool auth, Server *server);
+	void execute(Client *client, std::vector<std::string> args);
+};
+
+class NoticeCommand : public Command {
+public:
+	NoticeCommand(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 
@@ -96,10 +108,10 @@ public:
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-//class QuitCommand : public Command {
-//public:
-//	QuitCommand(bool auth, Server *server);
-//	void execute(Client *client, std::vector<std::string> args);
-//};
+class QuitCommand : public Command {
+public:
+	QuitCommand(bool auth, Server *server);
+	void execute(Client *client, std::vector<std::string> args);
+};
 
 #endif //IRC_COMMAND_HPP

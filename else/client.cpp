@@ -75,6 +75,16 @@ int	main( int argc, char **argv ) {
 	sleep(3);
 	mes = "PRIVMSG #hbd :hello channel!\r\n";
 	send(sock, mes.c_str(), mes.size(), 0);
+	memset(buffer, 0, sizeof buffer);
+	valread = read(sock, buffer, 1024);
+	std::cout << buffer << "\n";
+
+	mes = "PART #hbd I left! Gotta sleep zzZZzzZ\r\n";
+	send(sock, mes.c_str(), mes.size(), 0);
+	memset(buffer, 0, sizeof buffer);
+	valread = read(sock, buffer, 1024);
+	std::cout << buffer << "\n";
+
 
 	return (0);
 }

@@ -9,11 +9,12 @@ JoinCommand::~JoinCommand() {}
 
 void JoinCommand::execute(Client *client, std::vector<std::string> args) {
 	if (args.empty()) {
-		client->addReply(ERR_NEEDMOREPARAMS(std::string("JOIN")));
+		client->addReply(server_->getHostname(), ERR_NEEDMOREPARAMS(std::string("JOIN")));
 		return;
 	}
 	if (args[0] == "0") {
 		// leave all channels
+		// PART in a loop
 		return;
 	}
 	std::string chanName = args[0];
@@ -21,7 +22,7 @@ void JoinCommand::execute(Client *client, std::vector<std::string> args) {
 	if (args.size() > 1)
 		key = args[1];
 	if (server_->getChannelNum() > SERVER_MAX_CHANNELS || client->getChannelNum() > USER_MAX_CHANNELS) {
-		client->addReply(server_->getHostname(), "405", ERR_TOOMANYCHANNELS(chanName));
+		client->addReply(server_->getHostname(), ERR_TOOMANYCHANNELS(chanName));
 		return;
 	}
 
@@ -32,11 +33,11 @@ void JoinCommand::execute(Client *client, std::vector<std::string> args) {
 	}
 	// check invite if invite-only
 	if (channel->isFull()) {
-		client->addReply(server_->getHostname(), "471", ERR_CHANNELISFULL(chanName));
+		client->addReply(server_->getHostname(), ERR_CHANNELISFULL(chanName));
 	} else if (channel->checkIfBanned(client->getNickname())) {
-		client->addReply(server_->getHostname(), "474", ERR_BANNEDFROMCHAN(chanName));
+		client->addReply(server_->getHostname(), ERR_BANNEDFROMCHAN(chanName));
 	} else if (channel->getKey() != key) {
-		client->addReply(server_->getHostname(), "475", ERR_BADCHANNELKEY(chanName, key));
+		client->addReply(server_->getHostname(), ERR_BADCHANNELKEY(chanName, key));
 	} else {
 		client->joinChannel(channel);
 		std::string &topic = channel->getTopic();

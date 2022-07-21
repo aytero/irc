@@ -3,7 +3,7 @@
 Client::Client(int fd, std::string host) : fd(fd), hostname(host), state(PASSWORD), offset_(0) {}
 
 Client::~Client() {
-	std::cout << "client destr\n";
+	logger::debug(SSTR("client destr, fd " << fd));
 	close(fd);
 }
 
@@ -14,24 +14,27 @@ bool Client::isRegistered() {
 	return state == DONE;
 }
 
-void Client::addReply(std::string source, std::string numeric, std::string mes) {
-	reply.append(":" + source + " " + numeric + " " + nickname + " " + mes + "\r\n");
+void Client::addReply(std::string from, std::string mes) {
+	std::string m = ":" + from + " " + mes +  "\r\n";
+	reply.append(m);
+	logger::debug(SSTR("to: " << nickname << " message: " << mes));
 }
 
-void Client::addReply(std::string source, std::string mes) {
+//void Client::addReply(std::string from, std::string mes) {
 	//	std::string(":serv.bar") + std::string("001") +
-	reply.append(":" + source + " " + nickname + " " + mes + "\r\n");
-}
+//	reply.append(":" + from + " " + nickname + " " + mes + "\r\n");
+//}
 
 void Client::addReply(std::string mes) {
 //	reply.append(":" + getNickname() + " " + mes + "\r\n");
 	reply.append(mes + "\r\n");
+	logger::debug(SSTR("to: " << nickname << " message: " << mes));
 }
 
 void Client::welcome() {
 	if (state != DONE)
 		return;
-	addReply(RPL_WELCOME(nickname));
+	addReply(RPL_WELCOME(nickname, getPrefix()));
 	//	addReply(sprintf("Nickname is set to %s ", nickname));
 }
 
@@ -59,13 +62,14 @@ void Client::joinChannel(Channel *channel) {
 }
 
 void Client::leaveChannel(Channel *channel) {
-	std::map<std::string,Channel*>::iterator it = channels.begin();
-	std::map<std::string,Channel*>::iterator ite = channels.end();
-	for (; it != ite; ++it) {
+	chan_it it = channels.begin();
+	chan_it ite = channels.end();
+	while (it != ite) {
 		if (it->second == channel) {
 			channel->removeUser(nickname);
-			channels.erase(it);
-		}
+			it = channels.erase(it);
+		} else
+			++it;
 	}
 }
 
@@ -75,6 +79,13 @@ void Client::leaveAllChannels() {
 
 int Client::getChannelNum() {
 	return channels.size();
+}
+
+Channel *Client::getChannel(std::string name) {
+	chan_it chan = channels.find(name);
+	if (chan == channels.end())
+		return 0;
+	return chan->second;
 }
 
 void Client::setState(RegistrationState new_state) {
