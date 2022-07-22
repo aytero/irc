@@ -23,23 +23,23 @@ void KickCommand::execute(Client *client, std::vector <std::string> args) {
 		return;
 	}
 	if (!channel->isOp(client)) {
-		client->setReply(server_->getHostname(), ERR_CHANOORIVSNEEDED(chan_name));
+		client->addReply(server_->getHostname(), ERR_CHANOPRIVSNEEDED(chan_name));
 		return;
 	}
 
 	Client *target = server_->getClient(target_name);
 	if (!target) {
-		client->setReply(server_->getHostname(), ERR_NOSUCHNICK(target_name));
+		client->addReply(server_->getHostname(), ERR_NOSUCHNICK(target_name));
 		return;
 	}
 	if (!target->getChannel(chan_name)) {
-		client->setReply(server_->getHostname(), ERR_USERNOTINCHANNEL(target_name, chan_name));
+		client->addReply(server_->getHostname(), ERR_USERNOTINCHANNEL(target_name, chan_name));
 		return;
 
 	}
 
 	std::string reason = "";
-	if (atgs.size() >= 3) {
+	if (args.size() >= 3) {
 		for (int i = 2; i < args.size(); ++i) {
 			reason.append(args[i] + " "); // SP after the last word -.-
 		}
@@ -47,4 +47,5 @@ void KickCommand::execute(Client *client, std::vector <std::string> args) {
 		reason = KICK_DEFAULT;
 
 	channel->kick(client, target, reason);
+	server_->broadcastEvent(channel->getUsers());
 }

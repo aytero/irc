@@ -24,13 +24,19 @@
 # define ERR_NOTEXTTOSEND() "412 :No text to send"
 # define ERR_CANNOTSENDTOCHAN(channel) "404" + channel + " :Cannot send to channel"
 # define ERR_NOSUCHNICK(nick) "401 * " + nick + " :No such nick/channel"
-
-
+# define ERR_NOORIGIN() "409 :No origin specified"
+# define ERR_UMODEUNKNOWNFLAG() "501 :Unknown MODE flag"
+# define ERR_USERSDONTMATCH() "502 :Cannot change mode for other users"
 //:irc.example.com 001 borja :Welcome to the Internet Relay Network borja!borja@polaris.cs.uchicago.edu
 # define RPL_WELCOME(nick, prefix) "001 " + nick + " :Welcome to the Internet Replay Network " + prefix
 //# define RPL_WELCOME(prefix) ":Welcome to the Internet Replay Network " + prefix
+
+/*   Custom rpls   */
 # define RPL_PRIVMSG(from, target, message) ":" + from + " PRIVMSG " + target + " :" + message
 # define RPL_NOTICE(from, target, message) ":" + from + " NOTICE " + target + " :" + message
+# define RPL_KICK(from, channel, target, message) ":" + from + " KICK " + channel + " " + target + " :" + message
+# define RPL_PART(from, channel, reason) ":" + from + " PART " + channel + " :" + reason
+# define RPL_PING(from)  "PING :" + from
 
 # define RPL_YOURHOST(servername, ver) ":Your host is " + servername + ", running version " + ver
 # define RPL_MYINFO(servername, version, userModes, chanModes) ":" + servername + " " + version + " " + userModes + " " + chanModes
@@ -39,6 +45,7 @@
 //332    RPL_TOPIC
 # define RPL_TOPIC(channel, topic) channel + " :" + topic
 
-# define RPL_PART(from, channel, reason) ":" + from + " PART " + channel + " :" + reason
+//221    RPL_UMODEIS
+# define RPL_UMODEIS(user_mode) user_mode
 
 #endif //IRC_REPLIES_HPP

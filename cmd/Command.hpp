@@ -12,7 +12,8 @@ class Command;
 # include "../core/Server.hpp"
 
 
-// todo: Ping Pong Kick Mode Notice Topic
+// todo: Ping Pong Oper Mode Invite
+//  done: Kick Notice Topic
 // Oper ?
 
 class Command {
@@ -44,7 +45,6 @@ public:
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-//
 //class PingCommand : public Command {
 //public:
 //	PingCommand(bool auth, Server *server);
@@ -53,6 +53,14 @@ public:
 //	void execute(Client *client, std::vector<std::string> args);
 //};
 //
+//class PongCommand : public Command {
+//public:
+//	PongCommand(bool auth, Server *server);
+//	~PongCommand();
+//
+//	void execute(Client *client, std::vector<std::string> args);
+//};
+
 //class NamesCommand : public Command {
 //public:
 //	NamesCommand(bool auth, Server *server);
@@ -65,11 +73,14 @@ public:
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-//class ModeCommand : public Command {
-//public:
-//	ModeCommand(bool auth, Server *server);
-//	void execute(Client *client, std::vector<std::string> args);
-//};
+class ModeCommand : public Command {
+	void userMode(Client *client, std::vector <std::string> args);
+	void chanMode(Client *client, std::vector <std::string> args);
+
+public:
+	ModeCommand(bool auth, Server *server);
+	void execute(Client *client, std::vector<std::string> args);
+};
 
 class KickCommand : public Command {
 public:

@@ -19,6 +19,8 @@ class Channel {
 	int maxUserNum;
 	std::vector<Client*> users;
 	std::vector<std::string> banlist;
+
+	Client *creator;
 	std::vector<Client*> operators;
 	std::string topic;
 

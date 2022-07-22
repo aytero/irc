@@ -1,6 +1,14 @@
 #include "Client.hpp"
 
-Client::Client(int fd, std::string host) : fd(fd), hostname(host), state(PASSWORD), offset_(0) {}
+Client::Client(int fd, std::string host) : fd(fd), hostname(host), state(PASSWORD), offset_(0) {
+
+	mode['a'] = false;
+	mode['i'] = false;
+	mode['w'] = false;
+	mode['r'] = false;
+	mode['o'] = false;
+	mode['O'] = false;
+}
 
 Client::~Client() {
 	logger::debug(SSTR("client destr, fd " << fd));
@@ -42,9 +50,9 @@ std::string Client::getPrefix() {
 	return nickname + (username.empty() ? "" : "!" + username) + (hostname.empty() ? "" : "@" + hostname);
 }
 
-void Client::setReply(std::string mes) {
-	reply = mes;
-}
+//void Client::setReply(std::string mes) {
+//	reply = mes;
+//}
 
 void Client::clearReply() {
 	offset_ = 0;
@@ -117,4 +125,26 @@ std::string &Client::getNickname() {
 }
 std::string &Client::getRealname() {
 	return realname;
+}
+
+bool Client::switchMode(const char m, bool toggle) {
+	std::map<char,bool>::iterator it = mode.find(m);
+	if (it != mode.end()) {
+		it->second = toggle;
+		return true;
+	}
+	return false;
+//	mode[m] = toggle;
+}
+
+std::string Client::getModeStr() {
+	std::map<char,bool>::iterator it = mode.begin();
+	std::map<char,bool>::iterator ite = mode.end();
+	std::string mode_str = "";
+
+	for (; it != ite; ++it) {
+		if (it->second)
+			mode_str.push_back(it->first);
+	}
+	return mode_str;
 }

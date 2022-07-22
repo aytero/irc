@@ -21,14 +21,14 @@ void TopicCommand::execute(Client *client, std::vector <std::string> args) {
 
 	std::string &topic = channel->getTopic();
 	if (args.size() == 1) {
-		if (!topic || topic == "")
-			client->addReply(RPL_NOTOPIC(name))
+		if (topic.empty() || topic == "")
+			client->addReply(RPL_NOTOPIC(name));
 		else
-			client->addReply(RPL_TOPIC(name, topic))
+			client->addReply(RPL_TOPIC(name, topic));
 	} else {
 		/// check mode
 		if (!channel->isOp(client)) {
-			client->setReply(server_->getHostname(), ERR_CHANOORIVSNEEDED(name));
+			client->addReply(server_->getHostname(), ERR_CHANOPRIVSNEEDED(name));
 			return;
 		}
 		topic.clear();

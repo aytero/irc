@@ -9,5 +9,5 @@ void NamesCommand::execute(Client *client, std::vector<std::string> args) {
 	for (; it != ite; ++it) {
 		repl.append("dd");
 	}
-	client->setReply(repl);
+	client->addReply(repl);
 }

@@ -17,8 +17,6 @@ class Client;
 # include "Channel.hpp"
 # include "../cmd/replies.hpp"
 
-//class Channel;
-
 enum RegistrationState {
 //	START,
 	PASSWORD,
@@ -43,6 +41,8 @@ class Client {
 	std::string reply;
 	std::map<std::string, Channel*> channels;
 	RegistrationState state;
+	std::map<char,bool> mode;
+
 	int fd;
 
 	std::string request;
@@ -62,7 +62,7 @@ public:
 	void addReply(std::string mes);
 	void addReply(std::string from, std::string mes);
 	//void addReply(std::string source, std::string numeric, std::string mes);
-	void setReply(std::string mes);
+//	void setReply(std::string mes);
 	void clearReply();
 	std::string getReply();
 
@@ -71,6 +71,7 @@ public:
 
 	void setState(RegistrationState new_state);
 	RegistrationState getState();
+
 	void setPassword(std::string &pass);
 	void setNickname(std::string &nick);
 	void setUsername(std::string &name);
@@ -86,6 +87,10 @@ public:
 	Channel *getChannel(std::string name);
 
 	void welcome();
+
+	bool switchMode(const char m, bool toggle);
+	std::string getModeStr();
+
 };
 
 

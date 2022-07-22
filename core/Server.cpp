@@ -181,9 +181,12 @@ int Server::processEvents() {
 	for (int i = 0; i < new_events_num; ++i) {
 		struct kevent &event = eventList[i];
 		unsigned eventFd = event.ident;
-		if (event.flags & EV_EOF)
+		if (event.flags & EV_EOF) {
 			disconnectClient(eventFd);
-		else if (eventFd == listeningSocket) {
+//		} else if (lastPing >= ping_offset) {
+//			sendPing();
+//			lastPing = std::time(0);
+		} else if (eventFd == listeningSocket) {
 			acceptConnection(event.ident);
 		} else if (event.filter == EVFILT_READ) {
 //			std::cout << "read event\n";
