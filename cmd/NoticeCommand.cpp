@@ -34,7 +34,7 @@ void NoticeCommand::execute(Client *client, std::vector <std::string> args) {
 			return;
 		}
 		channel->broadcast(RPL_PRIVMSG(client->getPrefix(), targetName, message), client);
-		server_->broadcastEvent();
+		server_->broadcastEvent(channel->getUsers());
 		return;
 	}
 	Client *target = server_->getClient(targetName);

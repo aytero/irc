@@ -32,7 +32,7 @@ void PrivMsgCommand::execute(Client *client, std::vector <std::string> args) {
 		}
 		channel->broadcast(RPL_PRIVMSG(client->getPrefix(), targetName, message));
 //		channel->broadcast(RPL_PRIVMSG(client->getPrefix(), targetName, message), client);
-		server_->broadcastEvent();
+		server_->broadcastEvent(channel->getUsers());
 		return;
 	}
 	Client *target = server_->getClient(targetName);

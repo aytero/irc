@@ -71,6 +71,12 @@ public:
 //	void execute(Client *client, std::vector<std::string> args);
 //};
 
+class KickCommand : public Command {
+public:
+	KickCommand(bool auth, Server *server);
+	void execute(Client *client, std::vector<std::string> args);
+};
+
 class TopicCommand : public Command {
 public:
 	TopicCommand(bool auth, Server *server);

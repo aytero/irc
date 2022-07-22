@@ -10,6 +10,7 @@
 # define ERR_NEEDMOREPARAMS(command) "461 * " + command + " :Not enough parameters"
 # define ERR_NOSUCHCHANNEL(channel) "403 * " + channel + " :No such channel"
 # define ERR_NOTONCHANNEL(channel) "442 * " + channel + " :You are not on that channel"
+# define ERR_USERNOTINCHANNEL(nick, channel) "441 * " + nick + " " + channel + " :They aren't on that channel"
 
 # define ERR_TOOMANYCHANNELS(channel) "405 * " + channel + " :You have joined too many channels"
 # define ERR_CHANNELISFULL(channel) "471 * " + channel + " :Cannot join channel (+l)"

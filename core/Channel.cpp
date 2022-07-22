@@ -26,6 +26,12 @@ void Channel::broadcast(std::string mes, Client *exclude) {
 	}
 }
 
+void Channel::kick(Client *op, Client *target, const std::string &reason) {
+	broadcast(RPL_KICK(op->getPrefix(), name, target->getNickname(), reason));
+	removeUser(target);
+	//	logger::debug();
+}
+
 bool Channel::isFull() {
 	if (userNum + 1 == maxUserNum)
 		return true;
@@ -51,6 +57,8 @@ Client *Channel::findUser(std::string &nick) {
 void Channel::removeUser(std::string &nick) {
 	for (int i = 0; i < users.size(); ++i) {
 		if (users[i]->getNickname() == nick) {
+
+			target->leaveChannel(this);
 			users[i] = 0;
 			return;
 		}
@@ -75,6 +83,10 @@ void Channel::setTopic(std::string &topic) {
 
 void Channel::addUser(Client *client) {
 	users.push_back(client);
+}
+
+std::vector<Client*> Channel::getUsers() {
+	return users;
 }
 
 std::string &Channel::getName() {

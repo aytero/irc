@@ -69,6 +69,7 @@ public:
 	int run();
 
 	void broadcastEvent(Client *exclude = 0);
+	void broadcastEvent(std::vector<Client*> users);
 	int addEvent(int eventType, int fd);
 	Channel *createChannel(std::string name, std::string key, Client *client);
 	Channel *getChannel(std::string name);

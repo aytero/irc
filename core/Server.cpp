@@ -45,6 +45,13 @@ void Server::broadcastEvent(Client *exclude) {
 	}
 }
 
+void Server::broadcastEvent(std::vector<Client *> users) {
+	for (int i = 0; i < users.size(); ++i) {
+		addEvent(WRITE_EVENT, users[i]->getFd());
+	}
+
+}
+
 void Server::initListeningSocket() {
 	int opt = 1;
 

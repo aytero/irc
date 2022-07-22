@@ -8,7 +8,7 @@ TopicCommand::TopicCommand(bool auth, Server *server) : Command(auth, server) {}
 
 void TopicCommand::execute(Client *client, std::vector <std::string> args) {
 	if (args.empty()) {
-		client->addReply(server_->getHostname(), ERR_NEEDMOREPARAMS(std::string("PART")));
+		client->addReply(server_->getHostname(), ERR_NEEDMOREPARAMS(std::string("TOPIC")));
 		return;
 	}
 
@@ -26,9 +26,9 @@ void TopicCommand::execute(Client *client, std::vector <std::string> args) {
 		else
 			client->addReply(RPL_TOPIC(name, topic))
 	} else {
-		// check mode + op
+		/// check mode
 		if (!channel->isOp(client)) {
-			client->setReply(server_->getHostname(), ERR_CHANOORIVSNEEDED());
+			client->setReply(server_->getHostname(), ERR_CHANOORIVSNEEDED(name));
 			return;
 		}
 		topic.clear();
@@ -36,7 +36,7 @@ void TopicCommand::execute(Client *client, std::vector <std::string> args) {
 			topic.append(args[i] + " "); // SP after the last word -.-
 		}
 		channel->setTopic(topic);
-		channel->broadcast(":" + client->getPrefix() + " TOPIC " + RPL_TOPIC(name, topic));
+		channel->broadcast(":" + client->getPrefix() + " TOPIC " + RPL_TOPIC(name, topic), client);
 	}
 
 }
