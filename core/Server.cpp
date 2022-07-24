@@ -114,16 +114,16 @@ int Server::acceptConnection(int event_fd) {
 // add size to read
 int Server::request(int fd) {
 //	std::string message;
-	char buffer[100];
+	char buffer[20];
 	int lenRead;
 
 	memset(buffer, 0, sizeof buffer);
-	lenRead = recv(fd, buffer, 100, 0);
+	lenRead = recv(fd, buffer, 20, 0);
 	if (lenRead > 0) {
 		logger::debug(SSTR("fd: " << fd << " read: " << buffer));
 		clients[fd]->addRequest(buffer);
 //		message.append(buffer);
-		if (!std::strstr(buffer, "\r\n"))
+		if (!std::strstr(buffer, "\n"))
 			return NEED_MORE;
 		clients[fd]->clearReply();
 		commandHandler->handle(clients[fd], clients[fd]->getRequest());
@@ -191,19 +191,21 @@ int Server::processEvents() {
 		} else if (event.filter == EVFILT_READ) {
 //			std::cout << "read event\n";
 			int ret = request(event.ident);
-			if (ret == DONE_READING)
+			if (ret == DONE_READING) {
+				logger::debug("done reading");
 				addEvent(WRITE_EVENT, eventFd);
+			}
 			else if (ret == NEED_MORE)
 				addEvent(READ_EVENT, eventFd);
 			else
 				disconnectClient(eventFd);
 		} else if (event.filter == EVFILT_WRITE) {
-//			std::cout << "write event\n";
+			logger::debug("write event");
 			int ret = response(event.ident, event.data);
-			if (ret <= 0)
-				disconnectClient(eventFd);
-		} else
-			disconnectClient(eventFd);
+//			if (ret <= 0)
+//				disconnectClient(eventFd);
+		}// else
+//			disconnectClient(eventFd);
 	}
 	return IRC_OK;
 }

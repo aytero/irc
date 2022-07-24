@@ -120,11 +120,24 @@ void Client::setRealname(std::string &name) {
 	realname = name;
 }
 
+void Client::setOpername(std::string &name) {
+	opername = name;
+}
+
+std::string &Client::getOpername() {
+	return opername;
+}
+
 std::string &Client::getNickname() {
 	return nickname;
 }
+
 std::string &Client::getRealname() {
 	return realname;
+}
+
+std::string &Client::getHostname() {
+	return hostname;
 }
 
 bool Client::switchMode(const char m, bool toggle) {

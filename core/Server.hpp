@@ -38,6 +38,8 @@ class Server {
 	struct sockaddr_in address;
 	const std::string port;
 	const std::string password;
+
+	std::string operPassword;
 	std::string hostname;
 
 //	Event *event;
@@ -77,6 +79,7 @@ public:
 
 	Client *getClient(std::string nick);
 	std::string &getHostname() {return hostname; }
+	std::string &getOperPassword() {return operPassword; }
 
 	enum returnStatus {
 		IRC_OK = 0,

@@ -20,11 +20,13 @@
 # define ERR_CHANOPRIVSNEEDED(channel) "482 * " + channel + " :You're not channel operator"
 
 # define ERR_NOTREGISTERED() "451 :You have not registered"
+# define ERR_PASSWDMISMATCH() "464 :Password incorrect"
 # define ERR_UNKNOWNCOMMAND(command) "421 * " + command + " :Unknown command"
 # define ERR_NOTEXTTOSEND() "412 :No text to send"
 # define ERR_CANNOTSENDTOCHAN(channel) "404" + channel + " :Cannot send to channel"
 # define ERR_NOSUCHNICK(nick) "401 * " + nick + " :No such nick/channel"
 # define ERR_NOORIGIN() "409 :No origin specified"
+# define ERR_NOOPERHOST() "491 :No O-lines for your host"
 # define ERR_UMODEUNKNOWNFLAG() "501 :Unknown MODE flag"
 # define ERR_USERSDONTMATCH() "502 :Cannot change mode for other users"
 //:irc.example.com 001 borja :Welcome to the Internet Relay Network borja!borja@polaris.cs.uchicago.edu
@@ -47,5 +49,6 @@
 
 //221    RPL_UMODEIS
 # define RPL_UMODEIS(user_mode) user_mode
-
+// 381
+# define RPL_YOUREOPER() "381 :You are now an IRC operator"
 #endif //IRC_REPLIES_HPP

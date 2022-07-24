@@ -44,7 +44,7 @@ void ModeCommand::chanMode(Client *client, std::vector <std::string> args) {
 //	}
 
 	if (!channel->isOp(client)) {
-		client->addReply(server_->getHostname(), ERR_CHANOORIVSNEEDED(chan_name));
+		client->addReply(server_->getHostname(), ERR_CHANOPRIVSNEEDED(chan_name));
 		return;
 	}
 
@@ -107,7 +107,7 @@ void ModeCommand::userMode(Client *client, std::vector <std::string> args) {
 			return;
 		}
 	}
-	client->addReply(server_->getHostname(), RPL_UMODEIS(client->getMode()));
+	client->addReply(server_->getHostname(), RPL_UMODEIS(client->getModeStr()));
 }
 
 void ModeCommand::execute(Client *client, std::vector <std::string> args) {

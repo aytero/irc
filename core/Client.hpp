@@ -38,6 +38,8 @@ class Client {
 	std::string realname;
 	std::string hostname;
 
+	std::string opername; // use when perform oper cmds
+
 	std::string reply;
 	std::map<std::string, Channel*> channels;
 	RegistrationState state;
@@ -76,8 +78,11 @@ public:
 	void setNickname(std::string &nick);
 	void setUsername(std::string &name);
 	void setRealname(std::string &name);
+	void setOpername(std::string &name);
 	std::string &getNickname();
 	std::string &getRealname();
+	std::string &getHostname();
+	std::string &getOpername();
 	std::string getPrefix();
 
 	void joinChannel(Channel *channel);

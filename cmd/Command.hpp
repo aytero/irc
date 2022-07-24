@@ -12,9 +12,9 @@ class Command;
 # include "../core/Server.hpp"
 
 
-// todo: Ping Pong Oper Mode Invite
-//  done: Kick Notice Topic
-// Oper ?
+// todo: Ping Pong Mode Invite
+//  done: Kick Notice Topic Oper
+// Oper -> Squit Connect Kill
 
 class Command {
 protected:
@@ -79,6 +79,12 @@ class ModeCommand : public Command {
 
 public:
 	ModeCommand(bool auth, Server *server);
+	void execute(Client *client, std::vector<std::string> args);
+};
+
+class OperCommand : public Command {
+public:
+	OperCommand(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 
