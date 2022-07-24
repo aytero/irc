@@ -26,6 +26,7 @@
 # define ERR_CANNOTSENDTOCHAN(channel) "404" + channel + " :Cannot send to channel"
 # define ERR_NOSUCHNICK(nick) "401 * " + nick + " :No such nick/channel"
 # define ERR_NOORIGIN() "409 :No origin specified"
+# define ERR_NOPRIVILEGES() "481 :Permission Denied - You're not an IRC operator"
 # define ERR_NOOPERHOST() "491 :No O-lines for your host"
 # define ERR_UMODEUNKNOWNFLAG() "501 :Unknown MODE flag"
 # define ERR_USERSDONTMATCH() "502 :Cannot change mode for other users"
@@ -39,6 +40,11 @@
 # define RPL_KICK(from, channel, target, message) ":" + from + " KICK " + channel + " " + target + " :" + message
 # define RPL_PART(from, channel, reason) ":" + from + " PART " + channel + " :" + reason
 # define RPL_PING(from)  "PING :" + from
+# define RPL_QUIT(user, reason) "QUIT :" + user + " :" + reason
+//# define RPL_QUIT(user, reason) "QUIT " + user + ": " + reason
+# define RPL_JOIN(user, channel) ":" + user + " JOIN " + channel
+# define RPL_KILL(user, reason) "KILL " + user + " :" + reason
+# define RPL_MODE(user, mode) user + " MODE +" + mode
 
 # define RPL_YOURHOST(servername, ver) ":Your host is " + servername + ", running version " + ver
 # define RPL_MYINFO(servername, version, userModes, chanModes) ":" + servername + " " + version + " " + userModes + " " + chanModes

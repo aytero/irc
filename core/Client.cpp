@@ -1,6 +1,8 @@
 #include "Client.hpp"
 
-Client::Client(int fd, std::string host) : fd(fd), hostname(host), state(PASSWORD), offset_(0) {
+Client::Client(int fd, std::string host) : fd(fd), hostname(host), state(PASSWORD), offset_(0), opername("") {
+
+	quit_ = false;
 
 	mode['a'] = false;
 	mode['i'] = false;
@@ -12,6 +14,7 @@ Client::Client(int fd, std::string host) : fd(fd), hostname(host), state(PASSWOR
 
 Client::~Client() {
 	logger::debug(SSTR("client destr, fd " << fd));
+	leaveAllChannels();
 	close(fd);
 }
 
@@ -82,7 +85,17 @@ void Client::leaveChannel(Channel *channel) {
 }
 
 void Client::leaveAllChannels() {
+	chan_it it = channels.begin();
+	chan_it ite = channels.end();
+	while (it != ite) {
+		it->second->removeUser(nickname);
+		it = channels.erase(it);
+	}
 	channels.clear();
+}
+
+void Client::addRequest(const char *mes, int len) {
+	request.append(mes, len);
 }
 
 int Client::getChannelNum() {

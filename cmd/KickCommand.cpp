@@ -46,6 +46,6 @@ void KickCommand::execute(Client *client, std::vector <std::string> args) {
 	} else
 		reason = KICK_DEFAULT;
 
-	channel->kick(client, target, reason);
 	server_->broadcastEvent(channel->getUsers());
+	channel->kick(client, target, reason);
 }

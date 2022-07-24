@@ -40,10 +40,13 @@ void JoinCommand::execute(Client *client, std::vector<std::string> args) {
 		client->addReply(server_->getHostname(), ERR_BADCHANNELKEY(chanName, key));
 	} else {
 		client->joinChannel(channel);
+		channel->broadcast(RPL_JOIN(client->getPrefix(), chanName));
+		server_->broadcastEvent();
 		std::string &topic = channel->getTopic();
 		if (topic == "")
 			client->addReply(RPL_NOTOPIC(chanName));
 		else
 			client->addReply(RPL_TOPIC(chanName, topic));
+
 	}
 }

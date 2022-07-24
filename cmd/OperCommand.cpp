@@ -16,8 +16,14 @@ void OperCommand::execute(Client *client, std::vector <std::string> args) {
 	}
 	else {
 		client->switchMode('o', true);
+		// add oper SIGN to prefix
+//		server then informs the rest of the network
+//		of the new operator by issuing a "MODE +o" for the clients nickname
 		client->setOpername(args[0]);
+		server_->addOper(args[0]);
 		client->addReply(server_->getHostname(), RPL_YOUREOPER());
-		client->addReply(server_->getHostname(), RPL_UMODEIS(client->getModeStr()));
+		// MODE +o
+		client->addReply(server_->getHostname(), RPL_MODE(client->getNickname(), client->getModeStr()));
+//		client->addReply(server_->getHostname(), RPL_UMODEIS(client->getModeStr()));
 	}
 }

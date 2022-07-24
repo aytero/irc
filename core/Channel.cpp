@@ -27,11 +27,13 @@ void Channel::broadcast(std::string mes, Client *exclude) {
 }
 
 void Channel::kick(Client *op, Client *target, const std::string &reason) {
+	// opername or ! creator flag
 	std::string mes = RPL_KICK(op->getPrefix(), name, target->getNickname(), reason);
 
 	broadcast(mes);
-	removeUser(target->getNickname());
 	logger::debug(mes);
+	target->leaveChannel(this);
+//	removeUser(target->getNickname());
 }
 
 bool Channel::isFull() {
@@ -60,7 +62,7 @@ void Channel::removeUser(std::string &nick) {
 	std::vector<Client*>::iterator it = users.begin();
 	for (; it != users.end(); ++it) {
 		if ((*it)->getNickname() == nick) {
-			(*it)->leaveChannel(this);
+//			(*it)->leaveChannel(this);
 			users.erase(it);
 			return;
 		}

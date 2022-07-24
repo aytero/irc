@@ -30,5 +30,5 @@ void PingCommand::execute(Client *client, std::vector<std::string> args) {
 //	client->addReply("PING :serv+prefix");
 	Client *target = server_->getClient(to);
 	target->addReply(RPL_PING(from));
-	server_->addEvent(WRITE_EVENT, target->getFd());
+//	server_->addEvent(WRITE_EVENT, target->getFd());
 }

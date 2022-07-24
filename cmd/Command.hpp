@@ -13,7 +13,7 @@ class Command;
 
 
 // todo: Ping Pong Mode Invite
-//  done: Kick Notice Topic Oper
+//  done: Kick Notice Topic Oper Kill
 // Oper -> Squit Connect Kill
 
 class Command {
@@ -45,14 +45,14 @@ public:
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-//class PingCommand : public Command {
-//public:
-//	PingCommand(bool auth, Server *server);
-//	~PingCommand();
-//
-//	void execute(Client *client, std::vector<std::string> args);
-//};
-//
+class PingCommand : public Command {
+public:
+	PingCommand(bool auth, Server *server);
+	~PingCommand();
+
+	void execute(Client *client, std::vector<std::string> args);
+};
+
 //class PongCommand : public Command {
 //public:
 //	PongCommand(bool auth, Server *server);
@@ -134,6 +134,12 @@ public:
 class QuitCommand : public Command {
 public:
 	QuitCommand(bool auth, Server *server);
+	void execute(Client *client, std::vector<std::string> args);
+};
+
+class Kill : public Command {
+public:
+	Kill(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 

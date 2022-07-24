@@ -23,7 +23,7 @@ void PartCommand::execute(Client *client, std::vector <std::string> args) {
 		std::string reason;
 		if (args.size() > 1) {
 			for (int i = 1; i < args.size(); ++i)
-			reason.append(args[i] + " "); // SP after last word _._
+				reason.append(args[i] + " "); // SP after last word _._
 		} else
 			reason = PART_DEFAULT;
 		client->addReply(RPL_PART(client->getPrefix(), name, reason));

@@ -13,6 +13,11 @@ Server::Server(const char *port, const char *pass) : port(port), password(pass) 
 		exit(1);
 	}
 	commandHandler = new CommandHandler(this);
+
+	ping_delay = 20;
+	last_ping = std::time(0);
+	operPassword = "8888";
+
 	logger::info("IRC server configured successfully");
 }
 
@@ -111,25 +116,32 @@ int Server::acceptConnection(int event_fd) {
 //	return lenRead;
 //}
 
-// add size to read
 int Server::request(int fd) {
-//	std::string message;
-	char buffer[20];
+	char *buffer;
 	int lenRead;
 
-	memset(buffer, 0, sizeof buffer);
-	lenRead = recv(fd, buffer, 20, 0);
+	unsigned bufferLen = 200;
+
+	buffer = new char [bufferLen];
+	memset(buffer, 0, bufferLen);
+
+	lenRead = recv(fd, buffer, bufferLen, 0);
+	logger::debug(SSTR("lenRead: " << lenRead));
 	if (lenRead > 0) {
-		logger::debug(SSTR("fd: " << fd << " read: " << buffer));
-		clients[fd]->addRequest(buffer);
-//		message.append(buffer);
-		if (!std::strstr(buffer, "\n"))
+		logger::debug(SSTR("fd: " << fd << " read: " << buffer)); // heap buffer overflow
+		clients[fd]->addRequest(buffer, lenRead);
+//		std::cout << buffer << "\n";
+		if (!std::strstr(buffer, "\n")) {
+			delete[] buffer;
 			return NEED_MORE;
+		}
 		clients[fd]->clearReply();
 		commandHandler->handle(clients[fd], clients[fd]->getRequest());
 		clients[fd]->clearRequest();
+		delete[] buffer;
 		return DONE_READING;
 	}
+	delete[] buffer;
 	return BAD_REQUEST;
 //	while (!std::strstr(buffer, "\r\n")) {
 //		if (recv(fd, buffer, 100, 0) > 0) {
@@ -142,7 +154,8 @@ int Server::request(int fd) {
 //	return IRC_OK;
 }
 
-int Server::response(int fd, unsigned dataSize) {
+// todo: better use fixed data size
+int Server::response(int fd, unsigned int dataSize) {
 	int lenSent;
 	std::string repl = clients[fd]->getReply();
 
@@ -169,6 +182,15 @@ int Server::response(int fd, unsigned dataSize) {
 //	return lenSent;
 //}
 
+void Server::sendPing() {
+	client_it it = clients.begin();
+	client_it ite = clients.end();
+	std::string cmd = "PING";
+	for (; it != ite; ++it)
+		commandHandler->handle(it->second, cmd);
+	broadcastEvent();
+}
+
 int Server::processEvents() {
 	int new_events_num;
 	struct kevent eventList[MAX_EVENTS];
@@ -178,35 +200,40 @@ int Server::processEvents() {
 		return -1;
 	}
 
-	for (int i = 0; i < new_events_num; ++i) {
-		struct kevent &event = eventList[i];
-		unsigned eventFd = event.ident;
-		if (event.flags & EV_EOF) {
-			disconnectClient(eventFd);
-//		} else if (lastPing >= ping_offset) {
-//			sendPing();
-//			lastPing = std::time(0);
-		} else if (eventFd == listeningSocket) {
-			acceptConnection(event.ident);
-		} else if (event.filter == EVFILT_READ) {
-//			std::cout << "read event\n";
-			int ret = request(event.ident);
-			if (ret == DONE_READING) {
-				logger::debug("done reading");
-				addEvent(WRITE_EVENT, eventFd);
-			}
-			else if (ret == NEED_MORE)
-				addEvent(READ_EVENT, eventFd);
-			else
+//	if (std::time(0) - last_ping >= ping_delay) {
+//		sendPing();
+//		last_ping = std::time(0);
+//		logger::debug("ping");
+//	} else {
+
+		for (int i = 0; i < new_events_num; ++i) {
+			struct kevent &event = eventList[i];
+			unsigned eventFd = event.ident;
+
+			if (event.flags & EV_EOF) {
 				disconnectClient(eventFd);
-		} else if (event.filter == EVFILT_WRITE) {
-			logger::debug("write event");
-			int ret = response(event.ident, event.data);
+			} else if (eventFd == listeningSocket) {
+				acceptConnection(event.ident);
+			} else if (event.filter == EVFILT_READ) {
+				int ret = request(event.ident);
+				if (ret == DONE_READING) {
+					logger::debug("done reading");
+					addEvent(WRITE_EVENT, eventFd);
+				} else if (ret == NEED_MORE)
+					addEvent(READ_EVENT, eventFd);
+				else
+					disconnectClient(eventFd);
+			} else if (event.filter == EVFILT_WRITE) {
+//				logger::debug("write event");
+				int ret = response(event.ident, event.data);
+				if (clients[eventFd]->haveQuit())
+					disconnectClient(eventFd);
 //			if (ret <= 0)
 //				disconnectClient(eventFd);
-		}// else
+			}// else
 //			disconnectClient(eventFd);
-	}
+		}
+//	}
 	return IRC_OK;
 }
 
@@ -254,6 +281,30 @@ Client *Server::getClient(std::string nick) {
 	return 0;
 }
 
+bool Server::isOp(std::string &nick) {
+	for (int i = 0; i < opers.size(); ++i) {
+		if (opers[i] == nick)
+			return true;
+	}
+	return false;
+}
+
+void Server::addOper(std::string &nick) {
+	opers.push_back(nick);
+}
+
+void Server::ban(std::string &nick) {
+	banlist.push_back(nick);
+}
+
+bool Server::isBanned(std::string &nick) {
+	for (int i = 0; i < banlist.size(); ++i) {
+		if (banlist[i] == nick)
+			return true;
+	}
+	return false;
+}
+
 void Server::shutdown() {
 	close(kq);
 	disconnectAllClients();
@@ -273,7 +324,7 @@ void Server::disconnectAllClients() {
 }
 
 void Server::disconnectClient(int fd) {
-	clients[fd]->leaveAllChannels();
+	logger::info(SSTR("User " << clients[fd]->getNickname() << " fd: " << fd << " disconnected"));
 	delete clients[fd];
 	clients.erase(fd);
 }

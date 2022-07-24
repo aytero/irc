@@ -3,15 +3,22 @@
 CommandHandler::CommandHandler() {}
 
 CommandHandler::CommandHandler(Server *server) {
-	commands["JOIN"] = new JoinCommand(true, server);
-	commands["PART"] = new PartCommand(true, server);
-	commands["PRIVMSG"] = new PrivMsgCommand(true, server);
-	commands["QUIT"] = new QuitCommand(true, server);
-//	commands["PING"] = new PingCommand(true, server);
-	//	commands["PONG"] = new PongCommand();
 	commands["PASS"] = new PasswordCommand(false, server);
 	commands["NICK"] = new NickCommand(false, server);
 	commands["USER"] = new UserCommand(false, server);
+
+	commands["JOIN"] = new JoinCommand(true, server);
+	commands["PART"] = new PartCommand(true, server);
+	commands["PRIVMSG"] = new PrivMsgCommand(true, server);
+	commands["NOTICE"] = new NoticeCommand(true, server);
+	commands["QUIT"] = new QuitCommand(true, server);
+	commands["PING"] = new PingCommand(true, server);
+//	commands["PONG"] = new PongCommand(true, server);
+	commands["TOPIC"] = new TopicCommand(true, server);
+	commands["MODE"] = new ModeCommand(true, server);
+	commands["OPER"] = new OperCommand(true, server);
+	commands["KICK"] = new KickCommand(true, server);
+	commands["KILL"] = new Kill(true, server);
 }
 //CommandHandler::CommandHandler() {}
 CommandHandler::~CommandHandler() {
@@ -62,6 +69,7 @@ void CommandHandler::handle(Client *client, std::string &message) {
 			std::string buf;
 			std::stringstream ssin(separator.substr(cmd.size(), separator.size()));
 			while (ssin >> buf) {
+				/// undefined ?
 				if (buf[0] == ':')//->++buf
 					buf = buf.substr(1);
 //				std::cout << buf << "\n";

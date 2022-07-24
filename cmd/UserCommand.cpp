@@ -10,7 +10,10 @@ void UserCommand::execute(Client *client, std::vector <std::string> args) {
 		client->addReply(server_->getHostname(), ERR_NEEDMOREPARAMS(std::string("USER")));
 	} else {
 		client->setUsername(args[0]);
-		client->setRealname(args[3]);
+		std::string real = "";
+		for (int i = 3; i < args.size(); ++i)
+			real.append(args[i] + " "); // SP after last word -.-
+		client->setRealname(real);
 		client->setState(DONE);
 		client->addReply(server_->getHostname(), RPL_WELCOME(client->getNickname(), client->getPrefix()));
 //		client->addReply(server_->getHostname(), RPL_YOURHOST(client->getHostname(), "1.1"))

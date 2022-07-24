@@ -49,6 +49,7 @@ class Client {
 
 	std::string request;
 	unsigned int offset_;
+	bool quit_;
 
 	typedef std::map<std::string,Channel*>::iterator chan_it;
 
@@ -57,7 +58,7 @@ public:
 	~Client();
 
 	int getFd();
-	void addRequest(std::string mes) {request.append(mes);}
+	void addRequest(const char *mes, int len);
 	std::string &getRequest() {return request;}
 	void clearRequest() {request.clear(); request = "";}
 	bool isRegistered();
@@ -90,6 +91,9 @@ public:
 	void leaveAllChannels();
 	int getChannelNum();
 	Channel *getChannel(std::string name);
+
+	void quit() { quit_ = true;}
+	bool haveQuit() { return quit_;}
 
 	void welcome();
 

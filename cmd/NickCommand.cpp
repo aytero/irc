@@ -35,8 +35,11 @@ void NickCommand::execute(Client *client, std::vector <std::string> args) {
 		client->addReply(server_->getHostname(), ERR_NONICKNAMEGIVEN());
 		return;
 	}
-	std::string nick = args[0];
-	if (server_->getClient(nick)) {// use lowercasing to check?
+	std::string &nick = args[0];
+	if (server_->isBanned(nick)) {
+		client->addReply(server_->getHostname(), "ERR this nickname is banned!");
+		client->quit();
+	} else if (server_->getClient(nick)) {// use lowercasing to check?
 		client->addReply(server_->getHostname(), ERR_NICKNAMEINUSE(nick));
 	} else if (!validate(nick)) {
 		client->addReply(server_->getHostname(), ERR_ERRONEUSNICKNAME(nick));

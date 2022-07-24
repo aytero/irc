@@ -16,6 +16,8 @@ class Server;
 # include <fcntl.h>
 # include <unistd.h>
 
+# include <ctime>
+
 
 # include "logger/Logger.hpp"
 //# include "Client.hpp"
@@ -38,9 +40,11 @@ class Server {
 	struct sockaddr_in address;
 	const std::string port;
 	const std::string password;
-
-	std::string operPassword;
 	std::string hostname;
+
+	std::vector<std::string> opers;
+	std::string operPassword;
+	std::vector<std::string> banlist;
 
 //	Event *event;
 	std::map<int, Client*> clients;
@@ -54,16 +58,23 @@ class Server {
 	void initListeningSocket();
 	int acceptConnection(int event_fd);
 
-	void disconnectClient(int fd);
 	void disconnectAllClients();
 	void shutdown();
 
 	int processEvents();
 
 	int request(int fd);
-	int response(int fd, unsigned dataSize);
+	int response(int fd, unsigned int dataSize);
 
 	typedef std::map<int,Client*>::iterator client_it;
+
+	unsigned long long ping_delay;
+	time_t last_ping;
+//		std::time_t t = std::time(0);   // get time now
+//		std::tm *now = std::localtime(&t);
+//		std::cout << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' <<  now->tm_mday << "\n";
+
+	void sendPing();
 
 public:
 	Server(const char *port, const char *pass);
@@ -78,8 +89,13 @@ public:
 	int getChannelNum();
 
 	Client *getClient(std::string nick);
+	void disconnectClient(int fd);
 	std::string &getHostname() {return hostname; }
 	std::string &getOperPassword() {return operPassword; }
+	bool isOp(std::string &nick);
+	void addOper(std::string &nick);
+	void ban(std::string &nick);
+	bool isBanned(std::string &nick);
 
 	enum returnStatus {
 		IRC_OK = 0,
