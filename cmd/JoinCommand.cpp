@@ -13,8 +13,11 @@ void JoinCommand::execute(Client *client, std::vector<std::string> args) {
 		return;
 	}
 	if (args[0] == "0") {
+//		std::vector<Channel*> chans = client->getChannels();
 		// leave all channels
-		// PART in a loop
+//		for (int i = 0; i < chans.size(); ++i) {
+			// PART in a loop
+//		}
 		return;
 	}
 	std::string chanName = args[0];

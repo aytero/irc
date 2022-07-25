@@ -14,7 +14,7 @@ class Command;
 
 // todo: Ping Pong Mode Invite
 //  done: Kick Notice Topic Oper Kill
-// Oper -> Squit Connect Kill
+// Oper -> Squit Connect are used for server-to-server communication
 
 class Command {
 protected:
@@ -126,6 +126,7 @@ public:
 };
 
 class UserCommand : public Command {
+	std::string getMOTD();
 public:
 	UserCommand(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);

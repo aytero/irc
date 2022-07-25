@@ -83,6 +83,10 @@ void CommandHandler::handle(Client *client, std::string &message) {
 				client->addReply(ERR_NOTREGISTERED());
 				return;
 			}
+//			if (cmd == "JOIN" && args[0] == "0") {
+//				commandHandler->handle(client, "PART");
+//				return;
+//			}
 			command->execute(client, args);
 		} catch (const std::out_of_range &e) {
 			client->addReply(ERR_UNKNOWNCOMMAND(cmd));

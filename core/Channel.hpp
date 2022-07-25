@@ -5,6 +5,7 @@ class Channel;
 
 # include <string>
 # include <vector>
+# include <algorithm>
 
 # define SERVER_MAX_CHANNELS 50
 # define USER_MAX_CHANNELS 10

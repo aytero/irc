@@ -63,7 +63,11 @@ void Channel::removeUser(std::string &nick) {
 	for (; it != users.end(); ++it) {
 		if ((*it)->getNickname() == nick) {
 //			(*it)->leaveChannel(this);
+//			operators.erase(std::find(operators.begin(), operators.end(), *it));
+//			std::find(vec.begin(), vec.end(), item) != vec.end()
 			users.erase(it);
+//			if (operators.empty())
+//				operators.push_back(users.front());
 			return;
 		}
 	}

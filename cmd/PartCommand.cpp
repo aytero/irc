@@ -15,11 +15,14 @@ void PartCommand::execute(Client *client, std::vector <std::string> args) {
 	channel = server_->getChannel(name);
 
 	if (!channel) {
+//		if no users delete chan?
 		client->addReply(server_->getHostname(), ERR_NOSUCHCHANNEL(name));
 	} else if (client->getChannel(name) == 0) {
 		client->addReply(server_->getHostname(), ERR_NOTONCHANNEL(name));
 	} else {
 		client->leaveChannel(channel);
+//		if no users delete chan?
+
 		std::string reason;
 		if (args.size() > 1) {
 			for (int i = 1; i < args.size(); ++i)

@@ -36,7 +36,8 @@ void TopicCommand::execute(Client *client, std::vector <std::string> args) {
 			topic.append(args[i] + " "); // SP after the last word -.-
 		}
 		channel->setTopic(topic);
-		channel->broadcast(":" + client->getPrefix() + " TOPIC " + RPL_TOPIC(name, topic), client);
+		channel->broadcast(":" + client->getPrefix() + " TOPIC " + RPL_TOPIC(name, topic));
+		server_->broadcastEvent(channel->getUsers());
 	}
 
 }
