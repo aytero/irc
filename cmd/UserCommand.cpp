@@ -9,6 +9,28 @@
 //xxx +
 UserCommand::UserCommand(bool auth, Server *server) : Command(auth, server) {}
 
+//375    RPL_MOTDSTART
+//       ":- <server> Message of the day - "
+//372    RPL_MOTD
+//       ":- <text>"
+//376    RPL_ENDOFMOTD
+//       ":End of MOTD command"
+//
+//  - When responding to the MOTD message and the MOTD file
+//    is found, the file is displayed line by line, with
+//    each line no longer than 80 characters, using
+//
+//
+//
+//
+//Kalt                         Informational                     [Page 48]
+//
+//RFC 2812          Internet Relay Chat: Client Protocol        April 2000
+//
+//
+//           RPL_MOTD format replies.  These MUST be surrounded
+//           by a RPL_MOTDSTART (before the RPL_MOTDs) and an
+//           RPL_ENDOFMOTD (after).
 std::string UserCommand::getMOTD() {
 	std::string motd = "Message of the day:\n";
 	std::ifstream file;
@@ -28,6 +50,7 @@ std::string UserCommand::getMOTD() {
 	return motd;
 }
 
+// todo change order to PASS -> USER -> NICK
 void UserCommand::execute(Client *client, std::vector <std::string> args) {
 	if (client->isRegistered()) {
 		client->addReply(server_->getHostname(), ERR_ALREADYREGISTERED(client->getNickname()));

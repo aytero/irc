@@ -13,7 +13,7 @@ class Command;
 
 
 // todo: Ping Pong Mode Invite
-//  done: Kick Notice Topic Oper Kill
+//  done: Kick Notice Topic Oper Kill List
 // Oper -> Squit Connect are used for server-to-server communication
 
 class Command {
@@ -41,6 +41,14 @@ public:
 	//	JoinCommand(const JoinCommand &ref);
 	~JoinCommand();
 	//	JoinCommand &operator=(const JoinCommand &ref);
+
+	void execute(Client *client, std::vector<std::string> args);
+};
+
+class List : public Command {
+public:
+	List(bool auth, Server *server);
+	~List();
 
 	void execute(Client *client, std::vector<std::string> args);
 };

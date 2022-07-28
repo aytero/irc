@@ -49,6 +49,8 @@ class Client {
 
 	std::string request;
 	unsigned int offset_;
+
+	// may add to state
 	bool quit_;
 
 	typedef std::map<std::string,Channel*>::iterator chan_it;

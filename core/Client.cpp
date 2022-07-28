@@ -47,6 +47,10 @@ void Client::welcome() {
 		return;
 	addReply(RPL_WELCOME(nickname, getPrefix()));
 	//	addReply(sprintf("Nickname is set to %s ", nickname));
+
+//	addReply(hostname, RPL_MOTDSTART());
+//	addReply(hostname, RPL_MOTD(getMOTD()));
+//	addReply(hostname, RPL_ENDOFMOTD());
 }
 
 std::string Client::getPrefix() {

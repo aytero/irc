@@ -44,6 +44,7 @@ void JoinCommand::execute(Client *client, std::vector<std::string> args) {
 	} else {
 		client->joinChannel(channel);
 		channel->broadcast(RPL_JOIN(client->getPrefix(), chanName));
+		// also brodcast names list
 		server_->broadcastEvent();
 		std::string &topic = channel->getTopic();
 		if (topic == "")

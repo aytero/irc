@@ -191,6 +191,25 @@ void Server::sendPing() {
 	broadcastEvent();
 }
 
+/*
+void Server::welcome(Client *client) {
+
+	client->addReply(hostname, RPL_WELCOME());
+	client->addReply(hostname, RPL_YOURHOST());
+	client->addReply(hostname, RPL_CREATED());
+	client->addReply(hostname, RPL_MYINFO());
+
+	client->addReply(hostname, RPL_LUSERCLIENT());
+	client->addReply(hostname, RPL_LUSEROP());
+//	client->addReply(hostname, RPL_LUSERUNKNOWN());
+	client->addReply(hostname, RPL_LUSERCHANNELS());
+
+	client->addReply(hostname, RPL_MOTDSTART());
+	client->addReply(hostname, RPL_MOTD(getMOTD()));
+	client->addReply(hostname, RPL_ENDOFMOTD());
+}
+*/
+
 int Server::processEvents() {
 	int new_events_num;
 	struct kevent eventList[MAX_EVENTS];

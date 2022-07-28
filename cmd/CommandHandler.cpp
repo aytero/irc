@@ -19,6 +19,7 @@ CommandHandler::CommandHandler(Server *server) {
 	commands["OPER"] = new OperCommand(true, server);
 	commands["KICK"] = new KickCommand(true, server);
 	commands["KILL"] = new Kill(true, server);
+	commands["LIST"] = new List(true, server);
 }
 //CommandHandler::CommandHandler() {}
 CommandHandler::~CommandHandler() {
@@ -68,6 +69,9 @@ void CommandHandler::handle(Client *client, std::string &message) {
 			std::vector <std::string> args;
 			std::string buf;
 			std::stringstream ssin(separator.substr(cmd.size(), separator.size()));
+
+			// todo doesnt work with multiple args
+			// ex: JOIN #campfire, #bonfire
 			while (ssin >> buf) {
 				/// undefined ?
 				if (buf[0] == ':')//->++buf
@@ -87,6 +91,8 @@ void CommandHandler::handle(Client *client, std::string &message) {
 //				commandHandler->handle(client, "PART");
 //				return;
 //			}
+			for (int i = 0; i < args.size(); ++i)
+				logger::debug(SSTR("arg[" << i << "]: " <<args[i]));
 			command->execute(client, args);
 		} catch (const std::out_of_range &e) {
 			client->addReply(ERR_UNKNOWNCOMMAND(cmd));

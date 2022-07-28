@@ -86,6 +86,7 @@ public:
 	int addEvent(int eventType, int fd);
 	Channel *createChannel(std::string name, std::string key, Client *client);
 	Channel *getChannel(std::string name);
+	std::vector<Channel*> getChannels() {return channels;}
 	int getChannelNum();
 
 	Client *getClient(std::string nick);
@@ -96,6 +97,7 @@ public:
 	void addOper(std::string &nick);
 	void ban(std::string &nick);
 	bool isBanned(std::string &nick);
+//	void welcome(Client *client);
 
 	enum returnStatus {
 		IRC_OK = 0,

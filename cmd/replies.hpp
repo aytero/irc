@@ -30,9 +30,6 @@
 # define ERR_NOOPERHOST() "491 :No O-lines for your host"
 # define ERR_UMODEUNKNOWNFLAG() "501 :Unknown MODE flag"
 # define ERR_USERSDONTMATCH() "502 :Cannot change mode for other users"
-//:irc.example.com 001 borja :Welcome to the Internet Relay Network borja!borja@polaris.cs.uchicago.edu
-# define RPL_WELCOME(nick, prefix) "001 " + nick + " :Welcome to the Internet Replay Network " + prefix
-//# define RPL_WELCOME(prefix) ":Welcome to the Internet Replay Network " + prefix
 
 /*   Custom rpls   */
 # define RPL_PRIVMSG(from, target, message) ":" + from + " PRIVMSG " + target + " :" + message
@@ -45,9 +42,25 @@
 # define RPL_JOIN(user, channel) ":" + user + " JOIN " + channel
 # define RPL_KILL(user, reason) "KILL " + user + " :" + reason
 # define RPL_MODE(user, mode) user + " MODE +" + mode
+# define RPL_LIST_HINT() "channel name | users | topic"
 
-# define RPL_YOURHOST(servername, ver) ":Your host is " + servername + ", running version " + ver
-# define RPL_MYINFO(servername, version, userModes, chanModes) ":" + servername + " " + version + " " + userModes + " " + chanModes
+//:irc.example.com 001 borja :Welcome to the Internet Relay Network borja!borja@polaris.cs.uchicago.edu
+# define RPL_WELCOME(nick, prefix) "001 " + nick + " :Welcome to the Internet Replay Network " + prefix
+# define RPL_YOURHOST(nick, host, ver) "002 " + nick " :Your host is " + host + ", running version " + ver
+# define RPL_CREATED(nick, date) "003 " + nick + " :This server was created " + date; }
+# define RPL_MYINFO(nick, servername, version, userModes, chanModes) "004 " + nick + ":" + servername + " " + version + " " + userModes + " " + chanModes
+
+//251    RPL_LUSERCLIENT
+# define RPL_LUSERCLIENT(int1, int2, int3) ":There are " + int1 + " users and " + int2 + " services on " + int3 + " servers"
+//252    RPL_LUSEROP
+# define RPL_LUSEROP(int1) int1 + " :operator(s) online"
+//253    RPL_LUSERUNKNOWN
+# define RPL_LUSERUNKNOWN(int1) int1 + " :unknown connection(s)"
+//254    RPL_LUSERCHANNELS
+# define RPL_LUSERCHANNELS(int1) int1 + " :channels formed"
+
+# define RPL_LIST(channel, visible, topic) channel + " " + visible + " :" + topic // 322
+# define RPL_LISTEND() " :End of LIST" // 323
 
 # define RPL_NOTOPIC(channel) channel + " :No topic is set"
 //332    RPL_TOPIC
@@ -58,3 +71,10 @@
 // 381
 # define RPL_YOUREOPER() "381 :You are now an IRC operator"
 #endif //IRC_REPLIES_HPP
+
+//375    RPL_MOTDSTART
+# define RPL_MOTDSTART(server) ":- " + server + " Message of the day - "
+//372    RPL_MOTD
+# define RPL_MOTD(text) ":- " + text
+//376    RPL_ENDOFMOTD
+#define RPL_ENDOFMOTD() ":End of MOTD command"

@@ -10,7 +10,7 @@ CXX_FILES			= main.cpp cmd/Command.cpp cmd/CommandHandler.cpp logger/Logger.cpp 
 						cmd/PrivMsgCommand.cpp cmd/NoticeCommand.cpp cmd/QuitCommand.cpp \
 						cmd/JoinCommand.cpp cmd/PartCommand.cpp cmd/TopicCommand.cpp \
 						cmd/KickCommand.cpp cmd/ModeCommand.cpp cmd/OperCommand.cpp \
-						cmd/Kill.cpp \
+						cmd/Kill.cpp cmd/List.cpp \
 						cmd/PingCommand.cpp #cmd/PongCommand.cpp cmd/NamesCommand.cpp
 
 CXX_DIRS			= $(dir $(CXX_FILES))
