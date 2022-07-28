@@ -92,6 +92,7 @@ public:
 	Client *getClient(std::string nick);
 	void disconnectClient(int fd);
 	std::string &getHostname() {return hostname; }
+	std::string &getPassword() {return password; }
 	std::string &getOperPassword() {return operPassword; }
 	bool isOp(std::string &nick);
 	void addOper(std::string &nick);
