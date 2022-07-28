@@ -1,12 +1,5 @@
 #include "Command.hpp"
-//#include "../core/Server.hpp"
-#include <fstream>
-#include <cstdlib>
-//✩‧₊*:・text ･:*₊‧✩
-//+
-//+++
-//+x ++x+
-//xxx +
+
 UserCommand::UserCommand(bool auth, Server *server) : Command(auth, server) {}
 
 //375    RPL_MOTDSTART
@@ -31,24 +24,6 @@ UserCommand::UserCommand(bool auth, Server *server) : Command(auth, server) {}
 //           RPL_MOTD format replies.  These MUST be surrounded
 //           by a RPL_MOTDSTART (before the RPL_MOTDs) and an
 //           RPL_ENDOFMOTD (after).
-std::string UserCommand::getMOTD() {
-	std::string motd = "Message of the day:\n";
-	std::ifstream file;
-	std::string filename = "forest.txt";
-
-	file.open(filename.c_str(), std::ios::in);
-	if (!file)
-		logger::error("Error: failed to open MOTD " + filename);
-
-	std::string	line;
-	while (getline(file, line)) {
-		motd.append(line);
-
-		if (!file.eof())
-			motd.append("\n");
-	}
-	return motd;
-}
 
 // todo change order to PASS -> USER -> NICK
 void UserCommand::execute(Client *client, std::vector <std::string> args) {
@@ -62,10 +37,6 @@ void UserCommand::execute(Client *client, std::vector <std::string> args) {
 		for (int i = 3; i < args.size(); ++i)
 			real.append(args[i] + " "); // SP after last word -.-
 		client->setRealname(real);
-		client->setState(DONE);
-		client->addReply(server_->getHostname(), RPL_WELCOME(client->getNickname(), client->getPrefix()));
-		client->addReply(server_->getHostname(), getMOTD());
-//		client->addReply(server_->getHostname(), RPL_YOURHOST(client->getHostname(), "1.1"))
-//		client->welcome();
+		client->setState(NICKNAME);
 	}
 }

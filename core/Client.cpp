@@ -1,8 +1,9 @@
 #include "Client.hpp"
 
-Client::Client(int fd, std::string host) : fd(fd), hostname(host), state(PASSWORD), offset_(0), opername("") {
+Client::Client(int fd, std::string host) : fd(fd), nickname(""), username(""), realname(""), reply(""),
+                                            hostname(host), state(PASSWORD), offset_(0), opername("") {
 
-	quit_ = false;
+//	quit_ = false;
 
 	mode['a'] = false;
 	mode['i'] = false;

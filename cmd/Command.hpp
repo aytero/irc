@@ -127,14 +127,15 @@ public:
 };
 
 class NickCommand : public Command {
+    void welcome(Client *client);
 	bool validate(std::string nickname);
+    std::string getMOTD();
 public:
 	NickCommand(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 
 class UserCommand : public Command {
-	std::string getMOTD();
 public:
 	UserCommand(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);

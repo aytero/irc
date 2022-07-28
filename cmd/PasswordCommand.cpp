@@ -11,7 +11,7 @@ void PasswordCommand::execute(Client *client, std::vector <std::string> args) {
         client->addReply(server_->getHostname(), ERR_PASSWDMISMATCH());
 	} else {
 //		client->setPassword(args[0]);
-		client->setState(NICKNAME);
+		client->setState(USERNAME);
 //		client->addReply(server_->getHostname(), ":password set");
 	}
 }

@@ -43,11 +43,12 @@
 # define RPL_KILL(user, reason) "KILL " + user + " :" + reason
 # define RPL_MODE(user, mode) user + " MODE +" + mode
 # define RPL_LIST_HINT() "channel name | users | topic"
+# define RPL_USAGE(step) "Registration steps:\n\t\tPASS <server password>\n\t\tUSER <username> * * :<realname>\n\t\tNICK <nickname>\n\t\t" + step
 
 //:irc.example.com 001 borja :Welcome to the Internet Relay Network borja!borja@polaris.cs.uchicago.edu
 # define RPL_WELCOME(nick, prefix) "001 " + nick + " :Welcome to the Internet Replay Network " + prefix
-# define RPL_YOURHOST(nick, host, ver) "002 " + nick " :Your host is " + host + ", running version " + ver
-# define RPL_CREATED(nick, date) "003 " + nick + " :This server was created " + date; }
+# define RPL_YOURHOST(nick, host, ver) "002 " + nick + " :Your host is " + host + ", running version " + ver
+# define RPL_CREATED(nick, date) "003 " + nick + " :This server was created " + date
 # define RPL_MYINFO(nick, servername, version, userModes, chanModes) "004 " + nick + ":" + servername + " " + version + " " + userModes + " " + chanModes
 
 //251    RPL_LUSERCLIENT
@@ -56,8 +57,7 @@
 # define RPL_LUSEROP(int1) int1 + " :operator(s) online"
 //253    RPL_LUSERUNKNOWN
 # define RPL_LUSERUNKNOWN(int1) int1 + " :unknown connection(s)"
-//254    RPL_LUSERCHANNELS
-# define RPL_LUSERCHANNELS(int1) int1 + " :channels formed"
+# define RPL_LUSERCHANNELS(nick, int1) "254" + nick + " " + int1 + " :channels formed"
 
 # define RPL_LIST(channel, visible, topic) channel + " " + visible + " :" + topic // 322
 # define RPL_LISTEND() " :End of LIST" // 323
@@ -72,9 +72,6 @@
 # define RPL_YOUREOPER() "381 :You are now an IRC operator"
 #endif //IRC_REPLIES_HPP
 
-//375    RPL_MOTDSTART
-# define RPL_MOTDSTART(server) ":- " + server + " Message of the day - "
-//372    RPL_MOTD
-# define RPL_MOTD(text) ":- " + text
-//376    RPL_ENDOFMOTD
-#define RPL_ENDOFMOTD() ":End of MOTD command"
+# define RPL_MOTDSTART(nick, server) "375 " + nick + " :- " + server + " Message of the day - "
+# define RPL_MOTD(nick, text) "372 " + nick + " :- " + text
+#define RPL_ENDOFMOTD(nick) "376 " + nick + " :End of MOTD command"

@@ -20,9 +20,10 @@ class Client;
 enum RegistrationState {
 //	START,
 	PASSWORD,
-	NICKNAME,
 	USERNAME,
+    NICKNAME,
 	DONE,
+    QUIT,
 };
 
 enum RequestState {
@@ -49,9 +50,6 @@ class Client {
 
 	std::string request;
 	unsigned int offset_;
-
-	// may add to state
-	bool quit_;
 
 	typedef std::map<std::string,Channel*>::iterator chan_it;
 
@@ -94,8 +92,8 @@ public:
 	int getChannelNum();
 	Channel *getChannel(std::string name);
 
-	void quit() { quit_ = true;}
-	bool haveQuit() { return quit_;}
+	void quit() { state = QUIT; }
+	bool haveQuit() { return state == QUIT;}
 
 	void welcome();
 

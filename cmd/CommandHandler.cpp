@@ -2,7 +2,7 @@
 
 CommandHandler::CommandHandler() {}
 
-CommandHandler::CommandHandler(Server *server) {
+CommandHandler::CommandHandler(Server *server) : serv_host(server->getHostname()) {
 	commands["PASS"] = new PasswordCommand(false, server);
 	commands["NICK"] = new NickCommand(false, server);
 	commands["USER"] = new UserCommand(false, server);
@@ -83,19 +83,31 @@ void CommandHandler::handle(Client *client, std::string &message) {
 			//if (client->getState() != DONE)
 			//	client->getHelp();
 			if (command->authRequired() && !client->isRegistered()) {
-//				client->addReply(server_->getHostname(), ERR_NOTREGISTERED());
-				client->addReply(ERR_NOTREGISTERED());
+				client->addReply(serv_host, ERR_NOTREGISTERED());
 				return;
 			}
+            if (client->getState() == PASSWORD && cmd != "PASS") {
+                client->addReply(serv_host, RPL_USAGE(std::string("use PASS command")));
+                return;
+            }
+            if (client->getState() == USERNAME && cmd != "USER") {
+                client->addReply(serv_host, RPL_USAGE(std::string("use USER command")));
+                return;
+            }
+            if (client->getState() == NICKNAME && cmd != "NICK") {
+                client->addReply(serv_host, RPL_USAGE(std::string("use NICK command")));
+                return;
+            }
 //			if (cmd == "JOIN" && args[0] == "0") {
 //				commandHandler->handle(client, "PART");
 //				return;
 //			}
 			for (int i = 0; i < args.size(); ++i)
 				logger::debug(SSTR("arg[" << i << "]: " <<args[i]));
+
 			command->execute(client, args);
 		} catch (const std::out_of_range &e) {
-			client->addReply(ERR_UNKNOWNCOMMAND(cmd));
+			client->addReply(serv_host, ERR_UNKNOWNCOMMAND(cmd));
 		}
 	}
 }

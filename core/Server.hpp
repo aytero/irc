@@ -10,6 +10,8 @@ class Server;
 # include <sys/types.h>
 # include <sys/socket.h>
 
+#include <arpa/inet.h>
+
 # include <sys/event.h>
 # include <sys/ioctl.h>
 # include <netinet/in.h>
@@ -92,7 +94,7 @@ public:
 	Client *getClient(std::string nick);
 	void disconnectClient(int fd);
 	std::string &getHostname() {return hostname; }
-	std::string &getPassword() {return password; }
+	const std::string &getPassword() const { return password; }
 	std::string &getOperPassword() {return operPassword; }
 	bool isOp(std::string &nick);
 	void addOper(std::string &nick);

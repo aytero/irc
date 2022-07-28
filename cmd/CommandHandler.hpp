@@ -17,7 +17,8 @@ class CommandHandler;
 class CommandHandler {
 	std::map<std::string, Command*> commands;
 	std::vector<std::string> parse(std::string &message);
-	Server *server_;
+//	Server *server_;
+    std::string serv_host;
 
 public:
 	CommandHandler();

@@ -94,7 +94,8 @@ int Server::acceptConnection(int event_fd) {
 		close(client_fd);
 		return IRC_ERROR;
 	}
-	Client *newClient = new Client(client_fd, getHostname());
+    logger::info(SSTR("IP address is: " << inet_ntoa(client_addr.sin_addr)));
+	Client *newClient = new Client(client_fd, inet_ntoa(client_addr.sin_addr));
 	clients.insert(std::pair<int,Client*>(newClient->getFd(), newClient));
 	logger::debug(SSTR("accepted client with fd " << client_fd));
 	return IRC_OK;
