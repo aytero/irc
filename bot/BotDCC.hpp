@@ -3,13 +3,14 @@
 
 # include <string>
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h> // for sleep()
-#include <stdio.h>
-#include <errno.h>
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
+# include <unistd.h> // for sleep()
+# include <stdio.h>
+# include <errno.h>
+# include <vector>
 
 # include "../logger/Logger.hpp"
 
@@ -23,6 +24,7 @@ class BotDCC {
 	int sock;
 	bool stop;
 	void sendFile(const std::string &filename);
+	void receiveFile(const std::string &filename, unsigned long fileSize);
 public:
 	BotDCC();
 	BotDCC(std::string port, std::string pass);

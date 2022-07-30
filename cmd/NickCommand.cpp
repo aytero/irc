@@ -60,7 +60,7 @@ bool NickCommand::validate(std::string nickname) {
 void NickCommand::welcome(Client *client) {
     const std::string &hostname = server_->getHostname();
 
-    client->addReply(hostname, RPL_WELCOME(client->getNickname(), client->getPrefix()));
+    //client->addReply(hostname, RPL_WELCOME(client->getNickname(), client->getPrefix()));
     client->addReply(hostname, RPL_YOURHOST(client->getNickname(), client->getHostname(), std::string("1.1")));
 //    client->addReply(hostname, RPL_CREATED(client->getNickname(), server_->getHostname())); // date of server creation
     client->addReply(hostname, RPL_MYINFO(client->getNickname(), server_->getHostname(), std::string("1.1"),

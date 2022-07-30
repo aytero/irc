@@ -37,22 +37,82 @@ BotDCC::BotDCC(std::string port, std::string pass) : stop(false) {
 	send(sock, mes.c_str(), mes.size(), 0);
 }
 
+
+void BotDCC::receiveFile(const std::string &filename, unsigned long fileSize) {
+	int lenRead;
+	int bufLen = 256;
+	char buf[bufLen];
+
+	// truncate ? 
+	// create
+	FILE *pFile = fopen(filename.c_str(), "wb");
+	unsigned int sizeCheck = 0;
+
+
+	// new socket connection?
+	while (sizeCheck < fileSize) {
+		memset(buf, 0, 256);
+		lenRead = recv(sock, buf, 256, 0);
+		if (lenRead < 1) { // < 0 ?
+			logger::error("recv failed while receiving a file");
+			return;
+		}
+		//fwrite / append
+		fwrite(buf, sizeof(char), sizeof(buf), pFile);
+		sizeCheck += lenRead;
+	}
+	fclose(pFile);
+}
+
 void BotDCC::sendFile(const std::string &filename) {
-	std::string fileContent; // what if 0 ? better use char *
-	char buf[256];
-	memset(buf, 0, 256);
+	int bufLen = 256;
+	char buf[bufLen];
+	std::vector<char> bytes; // BYTE
+
 	FILE *fd = fopen(filename.c_str(), "rb");
 	if (!fd) {
 		logger::error("failed to open file " + filename + " Error: " + strerror(errno));
 		return;
 	}
-	while (!feof(fd)) {
-		int bytes_read = fread(&buf, 1, sizeof(buf), fd);
-		if (bytes_read < 0)
+
+	int bytes_read;
+
+	while (1) {
+		memset(buf, 0, bufLen);
+
+		bytes_read = fread(&buf, 1, sizeof(buf), fd);
+		logger::debug(SSTR("bytes read: " << bytes_read));
+
+		if (bytes_read < 0) {
+			logger::error("fread error");
+			return;
+		}
+
+		bytes.insert(bytes.end(), buf, buf + bytes_read);
+
+		if (feof(fd)) {
+			logger::info("eof");
 			break;
-		fileContent.append(buf);
+		}
+
+		if (ferror(fd))
+			logger::error(SSTR("Error Writing to file " << strerror(errno)));
 	}
-	std::cout << fileContent << "\n";
+
+	//std::vector<char>::iterator it = bytes.begin();
+	//std::vector<char>::iterator ite = bytes.end();
+	char *b = new char[bytes.size()];
+	memset(b, 0, bytes.size());
+	for (unsigned long i = 0; i < bytes.size(); ++i) {
+		b[i] = bytes[i];
+	}
+	logger::debug(b);
+
+	// set connection
+	// send
+
+	fclose(fd);
+	delete[] b;
 }
 
 void BotDCC::run() {
@@ -88,10 +148,21 @@ void BotDCC::run() {
 		std::string str(buffer, lenRead);
 		if (str.find("SEND") != std::string::npos) {
 			logger::info("Sending a file");
-			std::string path = str.substr(str.find("SEND") + 4);
-			path.pop_back(); // \n
+			//std::string path = str.substr(str.find("SEND") + 4);
+			std::string path = "./else/test.txt";
+			//if (path.empty() || path == "")
+			//path.pop_back(); // \n
 			logger::info(path);
 			sendFile(path);
+			logger::debug("after sending");
+			//receiveFile(path, 33);
+		}
+		if (str.find("GET") != std::string::npos) {
+			logger::info("GET file");
+			std::string filename = "t.txt";
+			unsigned long fileSize = 42;
+			receiveFile(filename, fileSize);
+			logger::info("GET file end");
 		}
 
 	}
