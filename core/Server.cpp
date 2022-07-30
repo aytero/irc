@@ -220,11 +220,12 @@ int Server::processEvents() {
 		return -1;
 	}
 
+	// kevent time out
 //	if (std::time(0) - last_ping >= ping_delay) {
 //		sendPing();
 //		last_ping = std::time(0);
 //		logger::debug("ping");
-//	} else {
+//	} //else {
 
 		for (int i = 0; i < new_events_num; ++i) {
 			struct kevent &event = eventList[i];

@@ -14,7 +14,7 @@ class Command;
 
 // todo: Ping Pong Mode Invite
 //  done: Kick Notice Topic Oper Kill List
-// Oper -> Squit Connect are used for server-to-server communication
+// Oper -> Squit && Connect are used for server-to-server communication
 
 class Command {
 protected:

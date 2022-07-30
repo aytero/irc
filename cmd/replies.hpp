@@ -57,7 +57,7 @@
 # define RPL_LUSEROP(int1) int1 + " :operator(s) online"
 //253    RPL_LUSERUNKNOWN
 # define RPL_LUSERUNKNOWN(int1) int1 + " :unknown connection(s)"
-# define RPL_LUSERCHANNELS(nick, int1) "254" + nick + " " + int1 + " :channels formed"
+# define RPL_LUSERCHANNELS(nick, int1) "254 " + nick + " " + int1 + " :channels formed"
 
 # define RPL_LIST(channel, visible, topic) channel + " " + visible + " :" + topic // 322
 # define RPL_LISTEND() " :End of LIST" // 323
