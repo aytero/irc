@@ -1,7 +1,7 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string name, std::string key) : name(name), key(key), topic(""), modeN(false) {}
-Channel::Channel() :name(""), key("") {}
+Channel::Channel(std::string name, std::string key) : name(name), key(key), topic(""), modeN(false), userNum(0) {}
+Channel::Channel() : name(""), key("") {}
 Channel::Channel(const Channel &ref) : name(ref.name), key(ref.key), banlist(ref.banlist),
 						userNum(ref.userNum), maxUserNum(ref.maxUserNum), users(ref.users) {}
 Channel::~Channel() {}
@@ -66,7 +66,8 @@ void Channel::removeUser(std::string &nick) {
 //			operators.erase(std::find(operators.begin(), operators.end(), *it));
 //			std::find(vec.begin(), vec.end(), item) != vec.end()
 			users.erase(it);
-//			if (operators.empty())
+			--userNum;
+//			if (operators.empty() && userNum > 0)
 //				operators.push_back(users.front());
 			return;
 		}
@@ -93,6 +94,12 @@ void Channel::setTopic(std::string &topic) {
 
 void Channel::addUser(Client *client) {
 	users.push_back(client);
+	++userNum;
+}
+
+
+int Channel::getUserNum() {
+	return userNum;
 }
 
 std::vector<Client*> Channel::getUsers() {

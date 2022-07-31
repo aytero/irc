@@ -20,8 +20,8 @@ void PrivMsgCommand::execute(Client *client, std::vector <std::string> args) {
 		logger::debug("broadcast");
 		Channel *channel = server_->getChannel(targetName);
 		if (!channel) {
-			client->addReply(server_->getHostname(), ERR_NOSUCHCHANNEL(targetName));
-			logger::debug(ERR_NOSUCHCHANNEL(targetName));
+			client->addReply(server_->getHostname(), ERR_NOSUCHCHANNEL(client->getNickname(), targetName));
+			logger::debug(ERR_NOSUCHCHANNEL(client->getNickname(), targetName));
 			return;
 		}
 		// if user not in chan

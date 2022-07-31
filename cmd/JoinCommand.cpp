@@ -13,11 +13,22 @@ void JoinCommand::execute(Client *client, std::vector<std::string> args) {
 		return;
 	}
 	if (args[0] == "0") {
-//		std::vector<Channel*> chans = client->getChannels();
-		// leave all channels
-//		for (int i = 0; i < chans.size(); ++i) {
-			// PART in a loop
-//		}
+		std::map<std::string,Channel*> chans = client->getAllChannels();
+		// PART in a loop
+		std::map<std::string,Channel*>::iterator it = chans.begin();
+		for (; it != chans.end(); ++it) { 
+			const std::string &chanName = it->first;
+			//client->addReply(RPL_PART(client->getPrefix(), it->first, std::string("just left")));
+			it->second->broadcast(RPL_PART(client->getPrefix(), chanName, std::string("just left")));
+			client->leaveChannel(it->second);
+			logger::info(SSTR("Channel: " << chanName << " Users: " << it->second->getUserNum()));
+			if (it->second->getUserNum() == 0)
+				//it->second->del()
+				server_->deleteChannel(chanName);
+		}
+		//client->leaveAllChannels();
+		server_->broadcastEvent(client);
+//		if no users delete chan?
 		return;
 	}
 	std::string chanName = args[0];
@@ -31,6 +42,10 @@ void JoinCommand::execute(Client *client, std::vector<std::string> args) {
 
 	Channel *channel = server_->getChannel(chanName);
 //	logger::debug(SSTR(chanName << " channel name (JOIN)"));
+	if (chanName.size() < 2 || (chanName[0] != '#' && chanName[0] != '&')) {
+		client->addReply(server_->getHostname(), ERR_NOSUCHCHANNEL(client->getNickname(), chanName));
+		return;
+	}
 	if (!channel) {
 		channel = server_->createChannel(chanName, key, client);
 	}
@@ -43,14 +58,15 @@ void JoinCommand::execute(Client *client, std::vector<std::string> args) {
 		client->addReply(server_->getHostname(), ERR_BADCHANNELKEY(chanName, key));
 	} else {
 		client->joinChannel(channel);
+		logger::info(SSTR("Channel: " << chanName << " Users: " << channel->getUserNum()));
 		channel->broadcast(RPL_JOIN(client->getPrefix(), chanName));
 		// also brodcast names list
 		server_->broadcastEvent();
 		std::string &topic = channel->getTopic();
 		if (topic == "")
-			client->addReply(RPL_NOTOPIC(chanName));
+			client->addReply(server_->getHostname(), RPL_NOTOPIC(chanName));
 		else
-			client->addReply(RPL_TOPIC(chanName, topic));
+			client->addReply(server_->getHostname(), RPL_TOPIC(chanName, topic));
 
 	}
 }

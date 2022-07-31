@@ -158,8 +158,12 @@ int Server::request(int fd) {
 // todo: better use fixed data size
 int Server::response(int fd, unsigned int dataSize) {
 	int lenSent;
-	std::string repl = clients[fd]->getReply();
 
+	// check if exists
+	// error here
+	std::string repl = clients.at(fd)->getReply();
+
+	/// change repl size ?
 	if (repl.size() <= dataSize) {
 		lenSent = send(fd, repl.c_str(), repl.size(), 0);
 		clients[fd]->clearReply();
@@ -278,6 +282,17 @@ Channel *Server::createChannel(std::string name, std::string key, Client *client
 	channels.push_back(channel);
 	channel->setOp(client);
 	return channel;
+}
+
+void Server::deleteChannel(const std::string &name) {
+	std::vector<Channel*>::iterator it = channels.begin();
+	for (; it != channels.end(); ++it) {
+		if ((*it)->getName() == name) {
+			delete *it;
+			channels.erase(it);
+			break;
+		}
+	}
 }
 
 Channel *Server::getChannel(std::string name) {

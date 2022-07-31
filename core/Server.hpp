@@ -87,6 +87,7 @@ public:
 	void broadcastEvent(std::vector<Client*> users);
 	int addEvent(int eventType, int fd);
 	Channel *createChannel(std::string name, std::string key, Client *client);
+	void deleteChannel(const std::string &name);
 	Channel *getChannel(std::string name);
 	std::vector<Channel*> getChannels() {return channels;}
 	int getChannelNum();

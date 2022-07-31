@@ -114,11 +114,11 @@ Channel *Client::getChannel(std::string name) {
 	return chan->second;
 }
 
-void Client::setState(RegistrationState new_state) {
+void Client::setState(UserState new_state) {
 	state = new_state;
 }
 
-RegistrationState Client::getState() {
+UserState Client::getState() {
 	return state;
 }
 

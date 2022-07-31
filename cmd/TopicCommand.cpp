@@ -22,9 +22,9 @@ void TopicCommand::execute(Client *client, std::vector <std::string> args) {
 	std::string &topic = channel->getTopic();
 	if (args.size() == 1) {
 		if (topic.empty() || topic == "")
-			client->addReply(RPL_NOTOPIC(name));
+			client->addReply(server_->getHostname(), RPL_NOTOPIC(name));
 		else
-			client->addReply(RPL_TOPIC(name, topic));
+			client->addReply(server_->getHostname(), RPL_TOPIC(name, topic));
 	} else {
 		/// check mode
 		if (!channel->isOp(client)) {

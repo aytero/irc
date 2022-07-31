@@ -23,8 +23,7 @@ void NoticeCommand::execute(Client *client, std::vector <std::string> args) {
 		logger::debug("broadcast");
 		Channel *channel = server_->getChannel(targetName);
 		if (!channel) {
-			client->addReply(server_->getHostname(), ERR_NOSUCHCHANNEL(targetName));
-			logger::debug(ERR_NOSUCHCHANNEL(targetName));
+			client->addReply(server_->getHostname(), ERR_NOSUCHCHANNEL(client->getNickname(), targetName));
 			return;
 		}
 		// if user not in chan
@@ -40,7 +39,6 @@ void NoticeCommand::execute(Client *client, std::vector <std::string> args) {
 	Client *target = server_->getClient(targetName);
 	if (!target) {
 		client->addReply(server_->getHostname(), ERR_NOSUCHNICK(targetName));
-		logger::debug(ERR_NOSUCHNICK(targetName));
 		return;
 	}
 	target->addReply(RPL_NOTICE(client->getPrefix(), targetName, message));

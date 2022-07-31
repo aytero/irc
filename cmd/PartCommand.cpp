@@ -16,11 +16,10 @@ void PartCommand::execute(Client *client, std::vector <std::string> args) {
 
 	if (!channel) {
 //		if no users delete chan?
-		client->addReply(server_->getHostname(), ERR_NOSUCHCHANNEL(name));
+		client->addReply(server_->getHostname(), ERR_NOSUCHCHANNEL(client->getNickname(), name));
 	} else if (client->getChannel(name) == 0) {
 		client->addReply(server_->getHostname(), ERR_NOTONCHANNEL(name));
 	} else {
-		client->leaveChannel(channel);
 //		if no users delete chan?
 
 		std::string reason;
@@ -29,6 +28,12 @@ void PartCommand::execute(Client *client, std::vector <std::string> args) {
 				reason.append(args[i] + " "); // SP after last word _._
 		} else
 			reason = PART_DEFAULT;
-		client->addReply(RPL_PART(client->getPrefix(), name, reason));
+		//client->addReply(RPL_PART(client->getPrefix(), name, reason));
+		channel->broadcast(RPL_PART(client->getPrefix(), name, reason));
+		server_->broadcastEvent(client);
+		client->leaveChannel(channel);
+		logger::info(SSTR("Channel: " << name << " Users: " << channel->getUserNum()));
+		if (channel->getUserNum() == 0)
+			server_->deleteChannel(name);
 	}
 }

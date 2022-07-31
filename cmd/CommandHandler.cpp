@@ -90,6 +90,7 @@ void CommandHandler::handle(Client *client, std::string &message) {
                 client->addReply(serv_host, RPL_USAGE(std::string("use PASS command")));
                 return;
             }
+			/*
             if (client->getState() == USERNAME && cmd != "USER") {
                 client->addReply(serv_host, RPL_USAGE(std::string("use USER command")));
                 return;
@@ -97,11 +98,8 @@ void CommandHandler::handle(Client *client, std::string &message) {
             if (client->getState() == NICKNAME && cmd != "NICK") {
                 client->addReply(serv_host, RPL_USAGE(std::string("use NICK command")));
                 return;
-            }
-//			if (cmd == "JOIN" && args[0] == "0") {
-//				commandHandler->handle(client, "PART");
-//				return;
-//			}
+            }*/
+
 			for (int i = 0; i < args.size(); ++i)
 				logger::debug(SSTR("arg[" << i << "]: " <<args[i]));
 

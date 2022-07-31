@@ -8,7 +8,7 @@
 # define ERR_NICKNAMEINUSE(nick) "433 * " + nick + " :Nickname is already in use"
 //# define ERR_NICKNAMEINUSE(serv, nick) serv + "443 * " + nick + " :Nickname is already in use"
 # define ERR_NEEDMOREPARAMS(command) "461 * " + command + " :Not enough parameters"
-# define ERR_NOSUCHCHANNEL(channel) "403 * " + channel + " :No such channel"
+# define ERR_NOSUCHCHANNEL(nick, channel) "403 " + nick + " " + channel + " :No such channel"
 # define ERR_NOTONCHANNEL(channel) "442 * " + channel + " :You are not on that channel"
 # define ERR_USERNOTINCHANNEL(nick, channel) "441 * " + nick + " " + channel + " :They aren't on that channel"
 

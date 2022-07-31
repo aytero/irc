@@ -44,6 +44,7 @@ public:
 	bool isOp(const Client *client);
 	void setOp(Client *client);
 	void addUser(Client *client);
+	int getUserNum();
 	std::vector<Client*> getUsers();
 	std::string &getTopic();
 	bool outsideMessageAllowed();

@@ -17,7 +17,7 @@ class Client;
 # include "Channel.hpp"
 # include "../cmd/replies.hpp"
 
-enum RegistrationState {
+enum UserState {
 //	START,
 	PASSWORD,
 	USERNAME,
@@ -43,7 +43,7 @@ class Client {
 
 	std::string reply;
 	std::map<std::string, Channel*> channels;
-	RegistrationState state;
+	UserState state;
 	std::map<char,bool> mode;
 
 	int fd;
@@ -72,8 +72,8 @@ public:
 	void setOffset(unsigned int offset) {offset_ = offset;}
 	unsigned int getOffset() { return offset_; }
 
-	void setState(RegistrationState new_state);
-	RegistrationState getState();
+	void setState(UserState new_state);
+	UserState getState();
 
 	void setPassword(std::string &pass);
 	void setNickname(std::string &nick);
@@ -91,6 +91,7 @@ public:
 	void leaveAllChannels();
 	int getChannelNum();
 	Channel *getChannel(std::string name);
+	std::map<std::string,Channel*> getAllChannels() { return channels; }
 
 	void quit() { state = QUIT; }
 	bool haveQuit() { return state == QUIT;}
