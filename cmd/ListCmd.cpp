@@ -13,10 +13,10 @@
 //                                     #twilight_zone and #42
 
 
-List::List(bool auth, Server *server) : Command(auth, server) {}
-List::~List() {}
+ListCmd::ListCmd(bool auth, Server *server) : Command(auth, server) {}
+ListCmd::~ListCmd() {}
 
-void List::execute(Client *client, std::vector <std::string> args) {
+void ListCmd::execute(Client *client, std::vector <std::string> args) {
 	std::vector<Channel*> chans = server_->getChannels();
 	std::vector<Channel*>::iterator it = chans.begin();
 	std::string &from = server_->getHostname();
@@ -28,5 +28,5 @@ void List::execute(Client *client, std::vector <std::string> args) {
 //		Channel *chan = server_->getChannel(i);
 //		client->addReply(server_->getHostname(), RPL_LIST(chan->getName(), "", chan->getTopic()))
 //	}
-	client->addReply(from, RPL_LISTEND());
+	client->addReply(from, RPL_LISTEND(client->getNickname()));
 }

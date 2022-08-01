@@ -64,8 +64,8 @@ public:
 	bool isRegistered();
 	void addReply(std::string mes);
 	void addReply(std::string from, std::string mes);
-	//void addReply(std::string source, std::string numeric, std::string mes);
-//	void setReply(std::string mes);
+	void addReply(const std::string &from, const std::string numeric, const std::string &mes);
+	void setReply(std::string mes);
 	void clearReply();
 	std::string getReply();
 
@@ -81,6 +81,7 @@ public:
 	void setRealname(std::string &name);
 	void setOpername(std::string &name);
 	std::string &getNickname();
+	std::string &getUsername();
 	std::string &getRealname();
 	std::string &getHostname();
 	std::string &getOpername();

@@ -4,14 +4,14 @@ OBJS_DIR			= ./objs
 
 CXX_HEADERS			= .
 
-CXX_FILES			= main.cpp cmd/Command.cpp cmd/CommandHandler.cpp logger/Logger.cpp \
+CXX_FILES			= main.cpp cmd/Command.cpp cmd/CommandHandler.cpp logger/Logger.cpp core/Utils.cpp\
 						core/Server.cpp core/Socket.cpp core/Client.cpp core/Channel.cpp \
-						cmd/PasswordCommand.cpp cmd/NickCommand.cpp cmd/UserCommand.cpp \
-						cmd/PrivMsgCommand.cpp cmd/NoticeCommand.cpp cmd/QuitCommand.cpp \
-						cmd/JoinCommand.cpp cmd/PartCommand.cpp cmd/TopicCommand.cpp \
-						cmd/KickCommand.cpp cmd/ModeCommand.cpp cmd/OperCommand.cpp \
-						cmd/Kill.cpp cmd/List.cpp \
-						cmd/PingCommand.cpp #cmd/PongCommand.cpp cmd/NamesCommand.cpp
+						cmd/PassCmd.cpp cmd/NickCmd.cpp cmd/UserCmd.cpp \
+						cmd/PrivMsgCmd.cpp cmd/NoticeCmd.cpp cmd/QuitCmd.cpp \
+						cmd/JoinCmd.cpp cmd/PartCmd.cpp cmd/TopicCmd.cpp \
+						cmd/KickCmd.cpp cmd/ModeCmd.cpp cmd/OperCmd.cpp \
+						cmd/KillCmd.cpp cmd/ListCmd.cpp \
+						cmd/PingCmd.cpp #cmd/PongCommand.cpp cmd/NamesCommand.cpp
 
 CXX_DIRS			= $(dir $(CXX_FILES))
 vpath %.cpp $(CXX_DIRS)

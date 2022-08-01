@@ -1,12 +1,12 @@
 #include "Command.hpp"
 
-PongCommand::PongCommand(bool auth, Server *server) : Command(auth, server) {}
-//PongCommand::PongCommand(const PongCommand &ref) {}
-PongCommand::~PongCommand() {}
-//PongCommand &PongCommand::operator=(const PongCommand &ref) {}
+PongCmd::PongCmd(bool auth, Server *server) : Command(auth, server) {}
+//PongCmd::PongCmd(const PongCmd &ref) {}
+PongCmd::~PongCmd() {}
+//PongCmd &PongCmd::operator=(const PongCmd &ref) {}
 
 
-void PongCommand::execute(Client *client, std::vector<std::string> args) {
+void PongCmd::execute(Client *client, std::vector<std::string> args) {
 	//	ERR_NOORIGIN()
 	//	ERR_NOSUCHSERVER()
 	//	if (client->checkLastActivity() == 0) {

@@ -3,23 +3,23 @@
 CommandHandler::CommandHandler() {}
 
 CommandHandler::CommandHandler(Server *server) : serv_host(server->getHostname()) {
-	commands["PASS"] = new PasswordCommand(false, server);
-	commands["NICK"] = new NickCommand(false, server);
-	commands["USER"] = new UserCommand(false, server);
+	commands["PASS"] = new PassCmd(false, server);
+	commands["NICK"] = new NickCmd(false, server);
+	commands["USER"] = new UserCmd(false, server);
 
-	commands["JOIN"] = new JoinCommand(true, server);
-	commands["PART"] = new PartCommand(true, server);
-	commands["PRIVMSG"] = new PrivMsgCommand(true, server);
-	commands["NOTICE"] = new NoticeCommand(true, server);
-	commands["QUIT"] = new QuitCommand(true, server);
-	commands["PING"] = new PingCommand(true, server);
-//	commands["PONG"] = new PongCommand(true, server);
-	commands["TOPIC"] = new TopicCommand(true, server);
-	commands["MODE"] = new ModeCommand(true, server);
-	commands["OPER"] = new OperCommand(true, server);
-	commands["KICK"] = new KickCommand(true, server);
-	commands["KILL"] = new Kill(true, server);
-	commands["LIST"] = new List(true, server);
+	commands["JOIN"] = new JoinCmd(true, server);
+	commands["PART"] = new PartCmd(true, server);
+	commands["PRIVMSG"] = new PrivMsgCmd(true, server);
+	commands["NOTICE"] = new NoticeCmd(true, server);
+	commands["QUIT"] = new QuitCmd(true, server);
+	commands["PING"] = new PingCmd(true, server);
+//	commands["PONG"] = new PongCmd(true, server);
+	commands["TOPIC"] = new TopicCmd(true, server);
+	commands["MODE"] = new ModeCmd(true, server);
+	commands["OPER"] = new OperCmd(true, server);
+	commands["KICK"] = new KickCmd(true, server);
+	commands["KILL"] = new KillCmd(true, server);
+	commands["LIST"] = new ListCmd(true, server);
 }
 //CommandHandler::CommandHandler() {}
 CommandHandler::~CommandHandler() {
@@ -86,10 +86,10 @@ void CommandHandler::handle(Client *client, std::string &message) {
 				client->addReply(serv_host, ERR_NOTREGISTERED());
 				return;
 			}
-            if (client->getState() == PASSWORD && cmd != "PASS") {
-                client->addReply(serv_host, RPL_USAGE(std::string("use PASS command")));
-                return;
-            }
+//            if (client->getState() == PASSWORD && cmd != "PASS") {
+//                client->addReply(serv_host, RPL_USAGE(std::string("use PASS command")));
+//                return;
+//            }
 			/*
             if (client->getState() == USERNAME && cmd != "USER") {
                 client->addReply(serv_host, RPL_USAGE(std::string("use USER command")));

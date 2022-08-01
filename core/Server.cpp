@@ -54,7 +54,16 @@ void Server::broadcastEvent(std::vector<Client *> users) {
 	for (int i = 0; i < users.size(); ++i) {
 		addEvent(WRITE_EVENT, users[i]->getFd());
 	}
+}
 
+void Server::broadcastMessage(const std::string &mes) {
+	client_it it = clients.begin();
+	client_it ite = clients.end();
+
+	for (; it != ite; ++it) {
+		it->second->addReply(hostname, mes);
+	}
+//		if (it->second != exclude)
 }
 
 void Server::initListeningSocket() {
@@ -173,6 +182,7 @@ int Server::response(int fd, unsigned int dataSize) {
 		lenSent = send(fd, repl.c_str() + offset, dataSize, 0);
 //		lenSent = send(client->getFd(), client->getResponse()->getText() + offset, event.data, 0);
 		clients[fd]->setOffset(offset + lenSent);
+		clients[fd]->setReply(repl.substr(lenSent));
 		if (lenSent > 0)
 			addEvent(WRITE_EVENT, fd);
 	}
@@ -247,12 +257,14 @@ int Server::processEvents() {
 				} else if (ret == NEED_MORE)
 					addEvent(READ_EVENT, eventFd);
 				else
-					disconnectClient(eventFd);
+					; // ignore
+//					disconnectClient(eventFd);
 			} else if (event.filter == EVFILT_WRITE) {
 //				logger::debug("write event");
 				int ret = response(event.ident, event.data);
-				if (clients[eventFd]->haveQuit())
-					disconnectClient(eventFd);
+//				if (clients[eventFd]->haveQuit() && clients[eventFd]->getReply() == "")
+					/// close socket -> EOF
+//					disconnectClient(eventFd);
 //			if (ret <= 0)
 //				disconnectClient(eventFd);
 			}// else

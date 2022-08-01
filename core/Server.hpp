@@ -85,6 +85,7 @@ public:
 
 	void broadcastEvent(Client *exclude = 0);
 	void broadcastEvent(std::vector<Client*> users);
+	void broadcastMessage(const std::string &mes);
 	int addEvent(int eventType, int fd);
 	Channel *createChannel(std::string name, std::string key, Client *client);
 	void deleteChannel(const std::string &name);

@@ -6,9 +6,9 @@
 //ERR_BADCHANMASK                 ERR_CHANOPRIVSNEEDED
 //ERR_USERNOTINCHANNEL            ERR_NOTONCHANNEL
 
-KickCommand::KickCommand(bool auth, Server *server) : Command(auth, server) {}
+KickCmd::KickCmd(bool auth, Server *server) : Command(auth, server) {}
 
-void KickCommand::execute(Client *client, std::vector <std::string> args) {
+void KickCmd::execute(Client *client, std::vector <std::string> args) {
 	if (args.size() < 2) {
 		client->addReply(server_->getHostname(), ERR_NEEDMOREPARAMS(std::string("KICK")));
 		return;
@@ -19,7 +19,7 @@ void KickCommand::execute(Client *client, std::vector <std::string> args) {
 
 	Channel *channel = client->getChannel(chan_name);
 	if (!channel) {
-		client->addReply(server_->getHostname(), ERR_NOTONCHANNEL(chan_name));
+		client->addReply(server_->getHostname(), ERR_NOTONCHANNEL(client->getNickname(), chan_name));
 		return;
 	}
 	if (!channel->isOp(client)) {
@@ -38,13 +38,10 @@ void KickCommand::execute(Client *client, std::vector <std::string> args) {
 
 	}
 
-	std::string reason = "";
+	std::string reason = KICK_DEFAULT;
 	if (args.size() >= 3) {
-		for (int i = 2; i < args.size(); ++i) {
-			reason.append(args[i] + " "); // SP after the last word -.-
-		}
-	} else
-		reason = KICK_DEFAULT;
+		reason = utils::vect_to_string(args, 2);
+	}
 
 	server_->broadcastEvent(channel->getUsers());
 	channel->kick(client, target, reason);

@@ -1,6 +1,6 @@
 #include "Command.hpp"
 
-ModeCommand::ModeCommand(bool auth, Server *server) : Command(auth, server) {}
+ModeCmd::ModeCmd(bool auth, Server *server) : Command(auth, server) {}
 
 /// channel MODE
 //ERR_NEEDMOREPARAMS              ERR_KEYSET
@@ -33,7 +33,7 @@ ModeCommand::ModeCommand(bool auth, Server *server) : Command(auth, server) {}
 //b - set/remove ban mask to keep users out;
 //e - set/remove an exception mask to override a ban mask;
 //I - set/remove an invitation mask to automatically override the invite-only flag;
-void ModeCommand::chanMode(Client *client, std::vector <std::string> args) {
+void ModeCmd::chanMode(Client *client, std::vector <std::string> args) {
 
 	std::string &chan_name = args[0];
 	Channel *channel = client->getChannel(chan_name);
@@ -81,7 +81,7 @@ void ModeCommand::chanMode(Client *client, std::vector <std::string> args) {
 //:Angel MODE Angel +i            ; Message from Angel to make themselves invisible.
 //MODE WiZ -o
 // 									+o or +O  command should be ignored, user must use OPER
-void ModeCommand::userMode(Client *client, std::vector <std::string> args) {
+void ModeCmd::userMode(Client *client, std::vector <std::string> args) {
 	if (args[0] != client->getNickname()) {
 		client->addReply(server_->getHostname(), ERR_USERSDONTMATCH());
 		return;
@@ -107,10 +107,10 @@ void ModeCommand::userMode(Client *client, std::vector <std::string> args) {
 			return;
 		}
 	}
-	client->addReply(server_->getHostname(), RPL_UMODEIS(client->getModeStr()));
+	client->addReply(server_->getHostname(), RPL_UMODEIS(client->getNickname(), client->getModeStr()));
 }
 
-void ModeCommand::execute(Client *client, std::vector <std::string> args) {
+void ModeCmd::execute(Client *client, std::vector <std::string> args) {
 	if (args.empty() || args.size() < 2) {
 		client->addReply(server_->getHostname(), ERR_NEEDMOREPARAMS(std::string("MODE")));
 		return;

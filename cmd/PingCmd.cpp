@@ -1,12 +1,12 @@
 #include "Command.hpp"
 
-PingCommand::PingCommand(bool auth, Server *server) : Command(auth, server) {}
-//PingCommand::PingCommand(const PingCommand &ref) {}
-PingCommand::~PingCommand() {}
-//PingCommand &PingCommand::operator=(const PingCommand &ref) {}
+PingCmd::PingCmd(bool auth, Server *server) : Command(auth, server) {}
+//PingCmd::PingCmd(const PingCmd &ref) {}
+PingCmd::~PingCmd() {}
+//PingCmd &PingCmd::operator=(const PingCmd &ref) {}
 
 
-void PingCommand::execute(Client *client, std::vector<std::string> args) {
+void PingCmd::execute(Client *client, std::vector<std::string> args) {
 	//	ERR_NOORIGIN()
 	//	ERR_NOSUCHSERVER()
 	//	if (client->checkLastActivity() == 0) {

@@ -29,13 +29,14 @@ bool Client::isRegistered() {
 void Client::addReply(std::string from, std::string mes) {
 	std::string m = ":" + from + " " + mes +  "\r\n";
 	reply.append(m);
-	logger::debug(SSTR("to: " << nickname << " message: " << mes));
+	logger::debug(SSTR("to: " << nickname << " message: " << m)); // or mes
 }
 
-//void Client::addReply(std::string from, std::string mes) {
-	//	std::string(":serv.bar") + std::string("001") +
-//	reply.append(":" + from + " " + nickname + " " + mes + "\r\n");
-//}
+void Client::addReply(const std::string &from, const std::string numeric, const std::string &mes) {
+	std::string m = ":" + from + " " + numeric + " " + nickname + " " + mes +  "\r\n";
+	reply.append(m);
+	logger::debug(SSTR("to: " << nickname << " message: " << m));
+}
 
 void Client::addReply(std::string mes) {
 //	reply.append(":" + getNickname() + " " + mes + "\r\n");
@@ -58,9 +59,9 @@ std::string Client::getPrefix() {
 	return nickname + (username.empty() ? "" : "!" + username) + (hostname.empty() ? "" : "@" + hostname);
 }
 
-//void Client::setReply(std::string mes) {
-//	reply = mes;
-//}
+void Client::setReply(std::string mes) {
+	reply = mes;
+}
 
 void Client::clearReply() {
 	offset_ = 0;
@@ -148,6 +149,10 @@ std::string &Client::getOpername() {
 
 std::string &Client::getNickname() {
 	return nickname;
+}
+
+std::string &Client::getUsername() {
+	return username;
 }
 
 std::string &Client::getRealname() {

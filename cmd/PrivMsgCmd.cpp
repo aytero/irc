@@ -1,22 +1,24 @@
 #include "Command.hpp"
 
-PrivMsgCommand::PrivMsgCommand(bool auth, Server *server) : Command(auth, server) {}
+PrivMsgCmd::PrivMsgCmd(bool auth, Server *server) : Command(auth, server) {}
 
-void PrivMsgCommand::execute(Client *client, std::vector <std::string> args) {
-	if (args.size() < 2) {
-		client->addReply(server_->getHostname(), ERR_NEEDMOREPARAMS(std::string("PrivMsg")));
+void PrivMsgCmd::execute(Client *client, std::vector <std::string> args) {
+	if (args.size() == 0) {
+		client->addReply(server_->getHostname(), ERR_NORECIPIENT(client->getNickname(), std::string("PRIVMSG")));
+		return;
+	}
+//	if (message.empty()) {
+	if (args.size() == 1) {
+		client->addReply(server_->getHostname(), ERR_NOTEXTTOSEND(client->getNickname()));
 		return;
 	}
 	std::string targetName = args[0];
-	std::string message;
-	for (int i = 1; i < args.size(); ++i)
-		message.append(args[i] + " "); // SP after last word -.-
-	if (message.empty()) {
-		client->addReply(server_->getHostname(), ERR_NOTEXTTOSEND());
-		return;
-	}
+//	args.erase(args.begin());
+	std::string message = utils::vect_to_string(args, 1);
+
 	logger::debug(SSTR("PRIVMSG target: " << targetName));
-	if (targetName[0] == '#') {
+
+	if (targetName[0] == '#' || targetName[0] == '&') {
 		logger::debug("broadcast");
 		Channel *channel = server_->getChannel(targetName);
 		if (!channel) {
@@ -41,7 +43,7 @@ void PrivMsgCommand::execute(Client *client, std::vector <std::string> args) {
 		logger::debug(ERR_NOSUCHNICK(targetName));
 		return;
 	}
+//	target->addReply(":" + client->getPrefix() + " PRIVMSG " + targetName + " :" + message);
 	target->addReply(RPL_PRIVMSG(client->getPrefix(), targetName, message));
-	// target add write event
 	server_->addEvent(WRITE_EVENT, target->getFd());
 }

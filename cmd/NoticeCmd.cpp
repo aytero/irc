@@ -1,20 +1,17 @@
 #include "Command.hpp"
 
-NoticeCommand::NoticeCommand(bool auth, Server *server) : Command(auth, server) {}
+NoticeCmd::NoticeCmd(bool auth, Server *server) : Command(auth, server) {}
 
-void NoticeCommand::execute(Client *client, std::vector <std::string> args) {
+void NoticeCmd::execute(Client *client, std::vector <std::string> args) {
 	if (args.size() < 2) {
 		client->addReply(server_->getHostname(), ERR_NEEDMOREPARAMS(std::string("NOTICE")));
 		return;
 	}
 	std::string targetName = args[0];
-	std::string message;
-
-	for (int i = 1; i < args.size(); ++i)
-		message.append(args[i] + " "); // SP after last word -.-
+	std::string message = utils::vect_to_string(args, 1);
 
 	if (message.empty()) {
-		client->addReply(server_->getHostname(), ERR_NOTEXTTOSEND());
+		client->addReply(server_->getHostname(), ERR_NOTEXTTOSEND(client->getNickname()));
 		return;
 	}
 

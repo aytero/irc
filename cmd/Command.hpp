@@ -7,6 +7,7 @@ class Command;
 # include <string>
 # include <vector>
 # include "replies.hpp"
+# include "../core/Utils.hpp"
 //# include "../logger/Logger.hpp"
 
 # include "../core/Server.hpp"
@@ -35,122 +36,140 @@ public:
 //	friend std::string &getHostname()
 };
 
-class JoinCommand : public Command {
-public:
-	JoinCommand(bool auth, Server *server);
-	//	JoinCommand(const JoinCommand &ref);
-	~JoinCommand();
-	//	JoinCommand &operator=(const JoinCommand &ref);
 
+/*
+* * * 		Connection registration		* * *
+*/
+class PassCmd : public Command {
+public:
+	PassCmd(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-class List : public Command {
+class NickCmd : public Command {
+	bool validate(std::string nickname);
+    void welcome(Client *client);
+    std::string getMOTD();
 public:
-	List(bool auth, Server *server);
-	~List();
-
+	NickCmd(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-class PingCommand : public Command {
+class UserCmd : public Command {
+	std::string getMOTD();
+	void welcome(Client *client);
 public:
-	PingCommand(bool auth, Server *server);
-	~PingCommand();
-
+	UserCmd(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-//class PongCommand : public Command {
-//public:
-//	PongCommand(bool auth, Server *server);
-//	~PongCommand();
-//
-//	void execute(Client *client, std::vector<std::string> args);
-//};
-
-//class NamesCommand : public Command {
-//public:
-//	NamesCommand(bool auth, Server *server);
-//	void execute(Client *client, std::vector<std::string> args);
-//};
-
-class PartCommand : public Command {
+class QuitCmd : public Command {
 public:
-	PartCommand(bool auth, Server *server);
+	QuitCmd(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-class ModeCommand : public Command {
+
+/*
+* * * 		Miscellaneous messages		* * *
+*/
+class ModeCmd : public Command {
 	void userMode(Client *client, std::vector <std::string> args);
 	void chanMode(Client *client, std::vector <std::string> args);
 
 public:
-	ModeCommand(bool auth, Server *server);
+	ModeCmd(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-class OperCommand : public Command {
+class KillCmd : public Command {
 public:
-	OperCommand(bool auth, Server *server);
+	KillCmd(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-class KickCommand : public Command {
+class PingCmd : public Command {
 public:
-	KickCommand(bool auth, Server *server);
+	PingCmd(bool auth, Server *server);
+	~PingCmd();
+
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-class TopicCommand : public Command {
+//class PongCmd : public Command {
+//public:
+//	PongCmd(bool auth, Server *server);
+//	~PongCmd();
+//
+//	void execute(Client *client, std::vector<std::string> args);
+//};
+
+//class NamesCmd : public Command {
+//public:
+//	NamesCmd(bool auth, Server *server);
+//	void execute(Client *client, std::vector<std::string> args);
+//};
+
+
+/*
+* * * 		Channel operations		* * *
+*/
+class JoinCmd : public Command {
 public:
-	TopicCommand(bool auth, Server *server);
+	JoinCmd(bool auth, Server *server);
+	//	JoinCmd(const JoinCmd &ref);
+	~JoinCmd();
+	//	JoinCmd &operator=(const JoinCmd &ref);
+
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-class PrivMsgCommand : public Command {
+class PartCmd : public Command {
 public:
-	PrivMsgCommand(bool auth, Server *server);
+	PartCmd(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-class NoticeCommand : public Command {
+class OperCmd : public Command {
 public:
-	NoticeCommand(bool auth, Server *server);
+	OperCmd(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-class PasswordCommand : public Command {
+class KickCmd : public Command {
 public:
-	PasswordCommand(bool auth, Server *server);
+	KickCmd(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-class NickCommand : public Command {
-    void welcome(Client *client);
-	bool validate(std::string nickname);
-    std::string getMOTD();
+class TopicCmd : public Command {
 public:
-	NickCommand(bool auth, Server *server);
+	TopicCmd(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-class UserCommand : public Command {
+class ListCmd : public Command {
 public:
-	UserCommand(bool auth, Server *server);
+	ListCmd(bool auth, Server *server);
+	~ListCmd();
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-class QuitCommand : public Command {
+
+/*
+* * * 		Sending messages		* * *
+*/
+class PrivMsgCmd : public Command {
 public:
-	QuitCommand(bool auth, Server *server);
+	PrivMsgCmd(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-class Kill : public Command {
+class NoticeCmd : public Command {
 public:
-	Kill(bool auth, Server *server);
+	NoticeCmd(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
+
 
 #endif //IRC_COMMAND_HPP

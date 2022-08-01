@@ -1,5 +1,4 @@
 #include "Command.hpp"
-//#include "../core/Server.hpp"
 #include <cctype>
 
 #include <fstream>
@@ -10,7 +9,7 @@
 //+x ++x+
 //xxx +
 
-NickCommand::NickCommand(bool auth, Server *server) : Command(auth, server) {}
+NickCmd::NickCmd(bool auth, Server *server) : Command(auth, server) {}
 
 //ERR_NONICKNAMEGIVEN             ERR_ERRONEUSNICKNAME
 //ERR_NICKNAMEINUSE               ERR_NICKCOLLISION
@@ -27,7 +26,18 @@ bool isSpecial(int c) {
 	return false;
 }
 
-std::string NickCommand::getMOTD() {
+bool NickCmd::validate(std::string nickname) {
+	if (nickname.empty() || nickname.size() > 9)
+		return false;
+	for (int i = 0; i < nickname.size(); ++i) {
+		if (!std::isalnum(nickname[i]) && !isSpecial(nickname[i]) && nickname[i] != '-') {
+			return false;
+		}
+	}
+	return true;
+}
+
+std::string NickCmd::getMOTD() {
     std::string motd = "Message of the day:\n";
     std::ifstream file;
     std::string filename = "forest.txt";
@@ -46,18 +56,7 @@ std::string NickCommand::getMOTD() {
     return motd;
 }
 
-bool NickCommand::validate(std::string nickname) {
-	if (nickname.empty() || nickname.size() > 9)
-		return false;
-	for (int i = 0; i < nickname.size(); ++i) {
-		if (!std::isalnum(nickname[i]) && !isSpecial(nickname[i]) && nickname[i] != '-') {
-			return false;
-		}
-	}
-	return true;
-}
-
-void NickCommand::welcome(Client *client) {
+void NickCmd::welcome(Client *client) {
     const std::string &hostname = server_->getHostname();
 
     //client->addReply(hostname, RPL_WELCOME(client->getNickname(), client->getPrefix()));
@@ -76,7 +75,7 @@ void NickCommand::welcome(Client *client) {
     client->addReply(hostname, RPL_ENDOFMOTD(client->getNickname()));
 }
 
-void NickCommand::execute(Client *client, std::vector <std::string> args) {
+void NickCmd::execute(Client *client, std::vector <std::string> args) {
 	if (args.empty() || args[0] == "") {
 		client->addReply(server_->getHostname(), ERR_NONICKNAMEGIVEN());
 		return;
@@ -91,10 +90,15 @@ void NickCommand::execute(Client *client, std::vector <std::string> args) {
 		client->addReply(server_->getHostname(), ERR_ERRONEUSNICKNAME(nick));
 	} else {
 		client->setNickname(nick);
+		client->setState(USERNAME);
         client->addReply(server_->getHostname(), RPL_WELCOME(client->getNickname(), client->getPrefix()));
-		if (client->getState() != DONE) {
+		if (client->getNickname() != "" && client->getRealname() != "") {// username
 			client->setState(DONE);
-            welcome(client);
+			welcome(client);
 		}
+//		if (client->getState() != DONE) {
+//			client->setState(DONE);
+//            welcome(client);
+//		}
 	}
 }

@@ -2,12 +2,12 @@
 #include "../core/Channel.hpp"
 //#include "../core/Server.hpp"
 
-JoinCommand::JoinCommand(bool auth, Server *server) : Command(auth, server) {}
-//JoinCommand::JoinCommand(const JoinCommand &ref) {}
-JoinCommand::~JoinCommand() {}
-//JoinCommand &JoinCommand::operator=(const JoinCommand &ref) {}
+JoinCmd::JoinCmd(bool auth, Server *server) : Command(auth, server) {}
+//JoinCmd::JoinCmd(const JoinCmd &ref) {}
+JoinCmd::~JoinCmd() {}
+//JoinCmd &JoinCmd::operator=(const JoinCmd &ref) {}
 
-void JoinCommand::execute(Client *client, std::vector<std::string> args) {
+void JoinCmd::execute(Client *client, std::vector<std::string> args) {
 	if (args.empty()) {
 		client->addReply(server_->getHostname(), ERR_NEEDMOREPARAMS(std::string("JOIN")));
 		return;
@@ -36,7 +36,8 @@ void JoinCommand::execute(Client *client, std::vector<std::string> args) {
 	if (args.size() > 1)
 		key = args[1];
 	if (server_->getChannelNum() > SERVER_MAX_CHANNELS || client->getChannelNum() > USER_MAX_CHANNELS) {
-		client->addReply(server_->getHostname(), ERR_TOOMANYCHANNELS(chanName));
+//		client->addReply(server_->getHostname(), ERR_TOOMANYCHANNELS(chanName));
+		client->addReply(server_->getHostname(), "405", ERR_TOOMANYCHANNELS(chanName));
 		return;
 	}
 
@@ -64,9 +65,9 @@ void JoinCommand::execute(Client *client, std::vector<std::string> args) {
 		server_->broadcastEvent();
 		std::string &topic = channel->getTopic();
 		if (topic == "")
-			client->addReply(server_->getHostname(), RPL_NOTOPIC(chanName));
+			client->addReply(server_->getHostname(), RPL_NOTOPIC(client->getNickname(), chanName));
 		else
-			client->addReply(server_->getHostname(), RPL_TOPIC(chanName, topic));
+			client->addReply(server_->getHostname(), RPL_TOPIC(client->getNickname(), chanName, topic));
 
 	}
 }

@@ -1,11 +1,14 @@
 #include "Command.hpp"
 
+# define KILL_DEFAULT "No reason specified"
+
+
 //ERR_NOPRIVILEGES              ERR_NEEDMOREPARAMS
 //ERR_NOSUCHNICK                ERR_CANTKILLSERVER
 
-Kill::Kill(bool auth, Server *server) : Command(auth, server) {}
+KillCmd::KillCmd(bool auth, Server *server) : Command(auth, server) {}
 
-void Kill::execute(Client *client, std::vector <std::string> args) {
+void KillCmd::execute(Client *client, std::vector <std::string> args) {
 	if (args.size() < 1) {
 		client->addReply(server_->getHostname(), ERR_NEEDMOREPARAMS(std::string("KILL")));
 		return;
@@ -23,13 +26,10 @@ void Kill::execute(Client *client, std::vector <std::string> args) {
 		return;
 	}
 
-	std::string reason;
-	if (args.size() > 1) {
-		for (int i = 1; i < args.size(); ++i)
-			reason.append(args[i] + " "); // SP after last word _._
-	} else {
-		reason = "No reason specified"; // default reason
-	}
+	std::string reason = KILL_DEFAULT;
+	if (args.size() > 1)
+		reason = utils::vect_to_string(args, 1);
+
 	// oper prefix
 	target->addReply(client->getOpername(), RPL_KILL(target_name, reason));
 	server_->ban(target_name);

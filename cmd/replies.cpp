@@ -1,5 +1,20 @@
 #include <string>
 
+//std::string rpl_privmsg(const std::string &from, const std::string &target, const std::string &message) {
+//	return std::string(":" + from + " PRIVMSG " + target + " :" + message);
+//}
+//
+//std::string Server::err_reply()
+//
+//std::string err_needmoreparams(const std::string &nick, const std::string &command) {
+//	return std::string("461 " nick + " " + command + " :Not enough parameters");
+//}
+
+//std::string err_needmoreparams(const std::string &command) { // 461
+//	return std::string(command + " :Not enough parameters");
+//}
+
+
 /////// 0xx
 // 001    RPL_WELCOME
 std::string RPL_WELCOME(std::string prefix) { return ":Welcome to the Internet Replay Network " + prefix; }
