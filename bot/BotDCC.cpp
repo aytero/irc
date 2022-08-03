@@ -1,10 +1,10 @@
-#include "BotDCC.hpp"
+#include "CampfireBot.hpp"
 
-BotDCC::BotDCC() : stop(false) {
+CampfireBot::CampfireBot() : stop(false) {
 	// connect to server
 }
 
-BotDCC::BotDCC(std::string port, std::string pass) : stop(false) {
+CampfireBot::CampfireBot(std::string port, std::string pass) : stop(false) {
 	// connect to the serv
 
 	int valread;
@@ -38,7 +38,7 @@ BotDCC::BotDCC(std::string port, std::string pass) : stop(false) {
 }
 
 
-void BotDCC::receiveFile(const std::string &filename, unsigned long fileSize) {
+void CampfireBot::receiveFile(const std::string &filename, unsigned long fileSize) {
 	int lenRead;
 	int bufLen = 256;
 	char buf[bufLen];
@@ -64,7 +64,7 @@ void BotDCC::receiveFile(const std::string &filename, unsigned long fileSize) {
 	fclose(pFile);
 }
 
-void BotDCC::sendFile(const std::string &filename) {
+void CampfireBot::sendFile(const std::string &filename) {
 	int bufLen = 256;
 	char buf[bufLen];
 	std::vector<char> bytes; // BYTE
@@ -115,7 +115,7 @@ void BotDCC::sendFile(const std::string &filename) {
 	delete[] b;
 }
 
-void BotDCC::run() {
+void CampfireBot::run() {
 //	std::string input;
 //	getline(std::cin, input);
 //	while (input != "QUIT" || input != "exit") {
@@ -146,6 +146,11 @@ void BotDCC::run() {
 		logger::debug(SSTR("fd: " << sock << " read: " << buffer)); // heap buffer overflow
 
 		std::string str(buffer, lenRead);
+		if (str.find("GAME") != std::string::npos) {
+			// game state
+			// finish game
+			// tries left
+		}
 		if (str.find("SEND") != std::string::npos) {
 			logger::info("Sending a file");
 			//std::string path = str.substr(str.find("SEND") + 4);
@@ -177,6 +182,6 @@ int main(int argc, char **argv) {
 	logger::setLogLevel(logger::DEBUG);
 	std::string port = argv[1];
 	std::string pass = argv[2];
-	BotDCC bot(port, pass);
+	CampfireBot bot(port, pass);
 	bot.run();
 }

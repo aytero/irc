@@ -1,8 +1,6 @@
 #include "Command.hpp"
 #include <cctype>
 
-#include <fstream>
-#include <cstdlib>
 //✩‧₊*:・text ･:*₊‧✩
 //+
 //+++
@@ -29,50 +27,12 @@ bool isSpecial(int c) {
 bool NickCmd::validate(std::string nickname) {
 	if (nickname.empty() || nickname.size() > 9)
 		return false;
-	for (int i = 0; i < nickname.size(); ++i) {
+	for (unsigned int i = 0; i < nickname.size(); ++i) {
 		if (!std::isalnum(nickname[i]) && !isSpecial(nickname[i]) && nickname[i] != '-') {
 			return false;
 		}
 	}
 	return true;
-}
-
-std::string NickCmd::getMOTD() {
-    std::string motd = "Message of the day:\n";
-    std::ifstream file;
-    std::string filename = "forest.txt";
-
-    file.open(filename.c_str(), std::ios::in);
-    if (!file)
-        logger::error("Error: failed to open MOTD " + filename);
-
-    std::string	line;
-    while (getline(file, line)) {
-        motd.append(line);
-
-        if (!file.eof())
-            motd.append("\n");
-    }
-    return motd;
-}
-
-void NickCmd::welcome(Client *client) {
-    const std::string &hostname = server_->getHostname();
-
-    //client->addReply(hostname, RPL_WELCOME(client->getNickname(), client->getPrefix()));
-    client->addReply(hostname, RPL_YOURHOST(client->getNickname(), client->getHostname(), std::string("1.1")));
-//    client->addReply(hostname, RPL_CREATED(client->getNickname(), server_->getHostname())); // date of server creation
-    client->addReply(hostname, RPL_MYINFO(client->getNickname(), server_->getHostname(), std::string("1.1"),
-                                          std::string("oOa"), std::string("O")));
-
-//    client->addReply(hostname, RPL_LUSERCLIENT());
-//    client->addReply(hostname, RPL_LUSEROP(std::to_string(server_->get)));
-//	client->addReply(hostname, RPL_LUSERUNKNOWN()); //
-    client->addReply(hostname, RPL_LUSERCHANNELS(client->getNickname(), std::to_string(server_->getChannelNum())));
-
-    client->addReply(hostname, RPL_MOTDSTART(client->getNickname(), server_->getHostname()));
-    client->addReply(hostname, RPL_MOTD(client->getNickname(), getMOTD()));
-    client->addReply(hostname, RPL_ENDOFMOTD(client->getNickname()));
 }
 
 void NickCmd::execute(Client *client, std::vector <std::string> args) {
@@ -90,15 +50,10 @@ void NickCmd::execute(Client *client, std::vector <std::string> args) {
 		client->addReply(server_->getHostname(), ERR_ERRONEUSNICKNAME(nick));
 	} else {
 		client->setNickname(nick);
-		client->setState(USERNAME);
-        client->addReply(server_->getHostname(), RPL_WELCOME(client->getNickname(), client->getPrefix()));
-		if (client->getNickname() != "" && client->getRealname() != "") {// username
-			client->setState(DONE);
-			welcome(client);
-		}
-//		if (client->getState() != DONE) {
-//			client->setState(DONE);
-//            welcome(client);
-//		}
+
+		if (client->getState() == DONE)
+        	client->addReply(server_->getHostname(), RPL_WELCOME(client->getNickname(), client->getPrefix()));
+		else
+			server_->checkConnectionRegistration(client);
 	}
 }

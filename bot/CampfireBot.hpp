@@ -19,16 +19,17 @@
 //DCC RESUME filename port position
 //DCC ACCEPT filename port position
 
+// todo: rename, PING-PONG, cmds, join channel
 
-class BotDCC {
+class CampfireBot {
 	int sock;
 	bool stop;
 	void sendFile(const std::string &filename);
 	void receiveFile(const std::string &filename, unsigned long fileSize);
 public:
-	BotDCC();
-	BotDCC(std::string port, std::string pass);
-	~BotDCC() {}
+	CampfireBot();
+	CampfireBot(std::string port, std::string pass);
+	~CampfireBot() {}
 
 	void run();
 //	void send(const std::string &target, const std::string &filePath);

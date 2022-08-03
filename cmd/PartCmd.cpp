@@ -20,8 +20,6 @@ void PartCmd::execute(Client *client, std::vector <std::string> args) {
 	} else if (client->getChannel(name) == 0) {
 		client->addReply(server_->getHostname(), ERR_NOTONCHANNEL(client->getNickname(), name));
 	} else {
-//		if no users delete chan?
-
 		std::string reason = PART_DEFAULT;
 		if (args.size() > 1)
 			reason = utils::vect_to_string(args, 1);
@@ -31,7 +29,5 @@ void PartCmd::execute(Client *client, std::vector <std::string> args) {
 		server_->broadcastEvent(client);
 		client->leaveChannel(channel);
 		logger::info(SSTR("Channel: " << name << " Users: " << channel->getUserNum()));
-		if (channel->getUserNum() == 0)
-			server_->deleteChannel(name);
 	}
 }

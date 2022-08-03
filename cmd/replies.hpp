@@ -26,6 +26,7 @@
 # define ERR_UNKNOWNCOMMAND(command) "421 * " + command + " :Unknown command"
 # define ERR_CANNOTSENDTOCHAN(channel) "404 " + channel + " :Cannot send to channel"
 # define ERR_NOSUCHNICK(nick) "401 * " + nick + " :No such nick/channel"
+# define ERR_NOSUCHSERVER(server) server + " :No such server" // 402
 # define ERR_NOORIGIN() "409 :No origin specified"
 # define ERR_NOPRIVILEGES() "481 :Permission Denied - You're not an IRC operator"
 # define ERR_NOOPERHOST() "491 :No O-lines for your host"
@@ -37,8 +38,9 @@
 # define RPL_NOTICE(from, target, message) ":" + from + " NOTICE " + target + " :" + message
 # define RPL_KICK(from, channel, target, message) ":" + from + " KICK " + channel + " " + target + " :" + message
 # define RPL_PART(from, channel, reason) ":" + from + " PART " + channel + " :" + reason
-# define RPL_PING(from)  "PING :" + from
+# define RPL_PING(from) "PING :" + from
 // PONG
+# define RPL_PONG(from, to) "PONG " + from + " " + to
 # define RPL_QUIT(user, reason) "QUIT :" + user + " :" + reason
 //# define RPL_QUIT(user, reason) "QUIT " + user + ": " + reason
 # define RPL_JOIN(user, channel) ":" + user + " JOIN " + channel
@@ -70,5 +72,6 @@
 # define RPL_MOTDSTART(nick, server) "375 " + nick + " :- " + server + " Message of the day - "
 # define RPL_MOTD(nick, text) "372 " + nick + " :- " + text
 # define RPL_ENDOFMOTD(nick) "376 " + nick + " :End of MOTD command"
+# define ERR_NOMOTD(nick) "422 " + nick + " :MOTD File is missing"
 
 #endif //IRC_REPLIES_HPP

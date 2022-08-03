@@ -11,10 +11,11 @@ class Command;
 //# include "../logger/Logger.hpp"
 
 # include "../core/Server.hpp"
+//class Server;
 
 
-// todo: Ping Pong Mode Invite
-//  done: Kick Notice Topic Oper Kill List
+// todo: Mode Invite
+//  done: Kick Notice Topic Oper Kill List Ping Pong
 // Oper -> Squit && Connect are used for server-to-server communication
 
 class Command {
@@ -41,6 +42,7 @@ public:
 * * * 		Connection registration		* * *
 */
 class PassCmd : public Command {
+//	friend void Server::checkConnectionRegistration(Client *client);
 public:
 	PassCmd(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
@@ -48,16 +50,12 @@ public:
 
 class NickCmd : public Command {
 	bool validate(std::string nickname);
-    void welcome(Client *client);
-    std::string getMOTD();
 public:
 	NickCmd(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
 };
 
 class UserCmd : public Command {
-	std::string getMOTD();
-	void welcome(Client *client);
 public:
 	UserCmd(bool auth, Server *server);
 	void execute(Client *client, std::vector<std::string> args);
@@ -96,13 +94,22 @@ public:
 	void execute(Client *client, std::vector<std::string> args);
 };
 
-//class PongCmd : public Command {
-//public:
-//	PongCmd(bool auth, Server *server);
-//	~PongCmd();
-//
-//	void execute(Client *client, std::vector<std::string> args);
-//};
+class PongCmd : public Command {
+public:
+	PongCmd(bool auth, Server *server);
+	~PongCmd();
+
+	void execute(Client *client, std::vector<std::string> args);
+};
+
+class MotdCmd : public Command {
+	std::string getMOTD();
+public:
+	MotdCmd(bool auth, Server *server);
+	~MotdCmd();
+
+	void execute(Client *client, std::vector<std::string> args);
+};
 
 //class NamesCmd : public Command {
 //public:

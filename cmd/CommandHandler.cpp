@@ -6,14 +6,15 @@ CommandHandler::CommandHandler(Server *server) : serv_host(server->getHostname()
 	commands["PASS"] = new PassCmd(false, server);
 	commands["NICK"] = new NickCmd(false, server);
 	commands["USER"] = new UserCmd(false, server);
+	commands["QUIT"] = new QuitCmd(false, server);
 
 	commands["JOIN"] = new JoinCmd(true, server);
 	commands["PART"] = new PartCmd(true, server);
 	commands["PRIVMSG"] = new PrivMsgCmd(true, server);
 	commands["NOTICE"] = new NoticeCmd(true, server);
-	commands["QUIT"] = new QuitCmd(true, server);
 	commands["PING"] = new PingCmd(true, server);
-//	commands["PONG"] = new PongCmd(true, server);
+	commands["PONG"] = new PongCmd(true, server);
+	commands["MOTD"] = new MotdCmd(true, server);
 	commands["TOPIC"] = new TopicCmd(true, server);
 	commands["MODE"] = new ModeCmd(true, server);
 	commands["OPER"] = new OperCmd(true, server);
@@ -65,6 +66,10 @@ void CommandHandler::handle(Client *client, std::string &message) {
 		std::string cmd = separator.substr(0, separator.find(' '));
 
 		try {
+			// todo only for debug
+			if (cmd == "EXIT") {
+				throw ("exit");
+			}
 			Command *command = commands.at(cmd);
 			std::vector <std::string> args;
 			std::string buf;
@@ -76,34 +81,21 @@ void CommandHandler::handle(Client *client, std::string &message) {
 				/// undefined ?
 				if (buf[0] == ':')//->++buf
 					buf = buf.substr(1);
-//				std::cout << buf << "\n";
-//				std::cout << buf[0] << "\n";
 				args.push_back(buf);
 			}
-			//if (client->getState() != DONE)
-			//	client->getHelp();
+
 			if (command->authRequired() && !client->isRegistered()) {
 				client->addReply(serv_host, ERR_NOTREGISTERED());
+				//		RPL_USAGE(std::string("use PASS command"))
 				return;
 			}
-//            if (client->getState() == PASSWORD && cmd != "PASS") {
-//                client->addReply(serv_host, RPL_USAGE(std::string("use PASS command")));
-//                return;
-//            }
-			/*
-            if (client->getState() == USERNAME && cmd != "USER") {
-                client->addReply(serv_host, RPL_USAGE(std::string("use USER command")));
-                return;
-            }
-            if (client->getState() == NICKNAME && cmd != "NICK") {
-                client->addReply(serv_host, RPL_USAGE(std::string("use NICK command")));
-                return;
-            }*/
 
-			for (int i = 0; i < args.size(); ++i)
+			for (unsigned int i = 0; i < args.size(); ++i)
 				logger::debug(SSTR("arg[" << i << "]: " <<args[i]));
 
 			command->execute(client, args);
+//			if (!client->isRegistered() && (cmd == "PASS" || cmd == "NICK" || cmd == "USER"))
+//				server_->checkConnectionRegistration(client);
 		} catch (const std::out_of_range &e) {
 			client->addReply(serv_host, ERR_UNKNOWNCOMMAND(cmd));
 		}

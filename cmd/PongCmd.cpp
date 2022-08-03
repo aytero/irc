@@ -6,20 +6,26 @@ PongCmd::~PongCmd() {}
 //PongCmd &PongCmd::operator=(const PongCmd &ref) {}
 
 
+//	ERR_NOORIGIN()
+//	ERR_NOSUCHSERVER()
+
 void PongCmd::execute(Client *client, std::vector<std::string> args) {
-	//	ERR_NOORIGIN()
-	//	ERR_NOSUCHSERVER()
-	//	if (client->checkLastActivity() == 0) {
-	//		client->deleteFromAllChannels();
-	//		disconnect()
-	//	}
-	// or server->getPrefix()
-	//	std::string repl = ":" + client->getPrefix() + " PING :" + args.at(0);
 
 	if (args.empty()) {
-		client->addReply(server_->getHostname(), ERR_NOORIGIN());
+		client->addReply(server_->getHostname(), "402", ERR_NOORIGIN());
 		return;
 	}
-	std::string &from = args[0];
-	server_->acceptPong(from);
+	Client *targ = server_->getClient(args[0]);
+	if (targ) {
+		targ->addReply(client->getPrefix(), RPL_PONG(client->getNickname(), args[0]));
+		server_->addEvent(WRITE_EVENT, targ->getFd());
+		return;
+	}
+
+	if (args[0] != server_->getHostname()) {
+		client->addReply(server_->getHostname(), "402", ERR_NOSUCHSERVER(server_->getHostname()));
+		return;
+	}
+	logger::info(SSTR(client->getPrefix() << " PONG"));
+	client->statePing(false);
 }

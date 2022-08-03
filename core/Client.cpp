@@ -1,9 +1,13 @@
 #include "Client.hpp"
 
-Client::Client(int fd, std::string host) : fd(fd), nickname(""), username(""), realname(""), reply(""),
-                                            hostname(host), state(PASSWORD), offset_(0), opername("") {
+Client::Client(int fd, std::string host) : fd(fd), nickname(""), username(""), realname(""), password(""),
+                                            hostname(host), opername(""), state(PENDING), offset_(0), reply("") {
 
 //	quit_ = false;
+
+	lastActivityTime = std::time(0);
+	lastPingTime = 0;
+	pinging_ = false;
 
 	mode['a'] = false;
 	mode['i'] = false;
@@ -73,9 +77,13 @@ std::string Client::getReply() {
 	return reply;
 }
 
-void Client::joinChannel(Channel *channel) {
-	channel->addUser(this);
-	channels.insert(std::make_pair(channel->getName(), channel));
+int Client::joinChannel(Channel *channel) {
+	if (!getChannel(channel->getName())) {
+		channel->addUser(this);
+		channels.insert(std::make_pair(channel->getName(), channel));
+		return 1;
+	}
+	return 0;
 }
 
 void Client::leaveChannel(Channel *channel) {
@@ -123,23 +131,23 @@ UserState Client::getState() {
 	return state;
 }
 
-void Client::setPassword(std::string &pass) {
+void Client::setPassword(std::string pass) {
 	password = pass;
 }
 
-void Client::setNickname(std::string &nick) {
+void Client::setNickname(std::string nick) {
 	nickname = nick;
 }
 
-void Client::setUsername(std::string &name) {
+void Client::setUsername(std::string name) {
 	username = name;
 }
 
-void Client::setRealname(std::string &name) {
+void Client::setRealname(std::string name) {
 	realname = name;
 }
 
-void Client::setOpername(std::string &name) {
+void Client::setOpername(std::string name) {
 	opername = name;
 }
 

@@ -17,10 +17,13 @@ ListCmd::ListCmd(bool auth, Server *server) : Command(auth, server) {}
 ListCmd::~ListCmd() {}
 
 void ListCmd::execute(Client *client, std::vector <std::string> args) {
+	(void)args;
 	std::vector<Channel*> chans = server_->getChannels();
 	std::vector<Channel*>::iterator it = chans.begin();
 	std::string &from = server_->getHostname();
+
 	client->addReply(from, RPL_LIST_HINT());
+
 	for (; it != chans.end(); ++it) {
 		client->addReply(from, RPL_LIST((*it)->getName(), std::to_string((*it)->getUsers().size()), (*it)->getTopic()));
 	}

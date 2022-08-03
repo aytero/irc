@@ -19,6 +19,7 @@ class Server;
 # include <unistd.h>
 
 # include <ctime>
+# include <csignal>
 
 
 # include "logger/Logger.hpp"
@@ -40,7 +41,7 @@ class Server {
 	int kq;
 	unsigned listeningSocket;
 	struct sockaddr_in address;
-	const std::string port;
+	const int port;
 	const std::string password;
 	std::string hostname;
 
@@ -52,6 +53,10 @@ class Server {
 	std::map<int, Client*> clients;
 	std::vector<Channel*> channels;
 	CommandHandler *commandHandler;
+
+	// time_t
+	unsigned long inactivityTimeout; //unsigned long long = 120
+	unsigned long pingTimeout; // = 60
 
 //	Server();
 	Server(const Server &);
@@ -70,25 +75,27 @@ class Server {
 
 	typedef std::map<int,Client*>::iterator client_it;
 
-	unsigned long long ping_delay;
-	time_t last_ping;
-//		std::time_t t = std::time(0);   // get time now
-//		std::tm *now = std::localtime(&t);
-//		std::cout << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' <<  now->tm_mday << "\n";
+	void welcome(Client *client);
 
-	void sendPing();
+	void pingConnection();
+	void deleteEmptyChannels();
+	void deleteClosedSessions();
+
 
 public:
-	Server(const char *port, const char *pass);
+	Server(const int port, const char *pass);
 	~Server();
 	int run();
+
+	// friend
+	void checkConnectionRegistration(Client *client);
 
 	void broadcastEvent(Client *exclude = 0);
 	void broadcastEvent(std::vector<Client*> users);
 	void broadcastMessage(const std::string &mes);
 	int addEvent(int eventType, int fd);
 	Channel *createChannel(std::string name, std::string key, Client *client);
-	void deleteChannel(const std::string &name);
+//	void deleteChannel(const std::string &name);
 	Channel *getChannel(std::string name);
 	std::vector<Channel*> getChannels() {return channels;}
 	int getChannelNum();

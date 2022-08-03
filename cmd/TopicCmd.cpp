@@ -34,6 +34,7 @@ void TopicCmd::execute(Client *client, std::vector <std::string> args) {
 		topic.clear();
 		topic = utils::vect_to_string(args, 1);
 		channel->setTopic(topic);
+		// weird numeric
 		channel->broadcast(":" + client->getPrefix() + " TOPIC " + RPL_TOPIC(client->getNickname(), name, topic));
 		server_->broadcastEvent(channel->getUsers());
 	}

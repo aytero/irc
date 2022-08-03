@@ -100,7 +100,7 @@ void ModeCmd::userMode(Client *client, std::vector <std::string> args) {
 	mode = mode.substr(1);
 
 	/// loop as mode could be "+imI"
-	for (int i = 0; i < mode.size(); ++i) {
+	for (unsigned int i = 0; i < mode.size(); ++i) {
 		modeChar = mode[i];
 		if (!client->switchMode(modeChar, toggleOn)) {
 			client->addReply(server_->getHostname(), ERR_UMODEUNKNOWNFLAG());

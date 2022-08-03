@@ -8,6 +8,7 @@ class Client;
 # include <unistd.h>
 # include <fcntl.h>
 
+# include <ctime>
 # include <string>
 # include <iostream>
 # include <map>
@@ -19,9 +20,10 @@ class Client;
 
 enum UserState {
 //	START,
-	PASSWORD,
-	USERNAME,
-    NICKNAME,
+//	PASSWORD,
+//	USERNAME,
+//    NICKNAME,
+	PENDING,
 	DONE,
     QUIT,
 };
@@ -33,29 +35,50 @@ enum RequestState {
 };
 
 class Client {
-	std::string password;
+	int fd;
 	std::string nickname; // appears for other users
 	std::string username; // used to log in
 	std::string realname;
+	std::string password;
 	std::string hostname;
 
 	std::string opername; // use when perform oper cmds
 
-	std::string reply;
 	std::map<std::string, Channel*> channels;
 	UserState state;
 	std::map<char,bool> mode;
 
-	int fd;
+	time_t lastPingTime;
+	time_t lastActivityTime;
+	// registration time
+	bool pinging_;
 
 	std::string request;
 	unsigned int offset_;
+	std::string reply;
 
 	typedef std::map<std::string,Channel*>::iterator chan_it;
 
 public:
 	Client(int fd, std::string host);
 	~Client();
+
+	const time_t &getLastActivityTime() const {
+		return lastActivityTime;
+	}
+	const time_t &getTimeAfterPing() const {
+		return lastPingTime;
+	}
+	void updateLastActivityTime() {
+		lastActivityTime = std::time(0);
+	}
+	void updateLastPingTime() {
+		lastPingTime = std::time(0);
+	}
+	bool pinging() {return pinging_; }
+	void statePing(bool toggle = true) {
+		pinging_ = toggle;
+	}
 
 	int getFd();
 	void addRequest(const char *mes, int len);
@@ -75,11 +98,11 @@ public:
 	void setState(UserState new_state);
 	UserState getState();
 
-	void setPassword(std::string &pass);
-	void setNickname(std::string &nick);
-	void setUsername(std::string &name);
-	void setRealname(std::string &name);
-	void setOpername(std::string &name);
+	void setPassword(std::string pass);
+	void setNickname(std::string nick);
+	void setUsername(std::string name);
+	void setRealname(std::string name);
+	void setOpername(std::string name);
 	std::string &getNickname();
 	std::string &getUsername();
 	std::string &getRealname();
@@ -87,7 +110,7 @@ public:
 	std::string &getOpername();
 	std::string getPrefix();
 
-	void joinChannel(Channel *channel);
+	int joinChannel(Channel *channel);
 	void leaveChannel(Channel *channel);
 	void leaveAllChannels();
 	int getChannelNum();
@@ -95,7 +118,8 @@ public:
 	std::map<std::string,Channel*> getAllChannels() { return channels; }
 
 	void quit() { state = QUIT; }
-	bool haveQuit() { return state == QUIT;}
+	bool haveQuit() { return state == QUIT; }
+
 
 	void welcome();
 

@@ -1,14 +1,16 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string name, std::string key) : name(name), key(key), topic(""), modeN(false), userNum(0) {}
+Channel::Channel(std::string name, std::string key) : name(name), key(key), topic(""), modeN(false), userNum(0), maxUserNum(10) {}
 Channel::Channel() : name(""), key("") {}
-Channel::Channel(const Channel &ref) : name(ref.name), key(ref.key), banlist(ref.banlist),
-						userNum(ref.userNum), maxUserNum(ref.maxUserNum), users(ref.users) {}
+Channel::Channel(const Channel &ref) : name(ref.name), key(ref.key), topic(ref.topic), modeN(ref.modeN),
+							userNum(ref.userNum), maxUserNum(ref.maxUserNum), users(ref.users), banlist(ref.banlist) {}
 Channel::~Channel() {}
 Channel &Channel::operator=(const Channel &ref) {
 	if (this != &ref) {
 		name = ref.name;
 		key = ref.key;
+		topic = ref.topic;
+		modeN = ref.modeN;
 		userNum = ref.userNum;
 		maxUserNum = ref.maxUserNum;
 		users = ref.users;
@@ -20,7 +22,7 @@ Channel &Channel::operator=(const Channel &ref) {
 
 void Channel::broadcast(std::string mes, Client *exclude) {
 	logger::debug("broadcast message: " + mes);
-	for (int i = 0; i < users.size(); ++i) {
+	for (unsigned int i = 0; i < users.size(); ++i) {
 		if (users[i] != exclude)
 			users[i]->addReply(mes);
 	}
@@ -43,7 +45,7 @@ bool Channel::isFull() {
 }
 
 bool Channel::checkIfBanned(std::string nick) {
-	for (int i = 0; i < banlist.size(); ++i) {
+	for (unsigned int i = 0; i < banlist.size(); ++i) {
 		if (banlist[i] == nick)
 			return true;
 	}
@@ -51,7 +53,7 @@ bool Channel::checkIfBanned(std::string nick) {
 }
 
 Client *Channel::findUser(std::string &nick) {
-	for (int i = 0; i < users.size(); ++i) {
+	for (unsigned int i = 0; i < users.size(); ++i) {
 		if (users[i]->getNickname() == nick)
 			return users[i];
 	}
@@ -75,7 +77,7 @@ void Channel::removeUser(std::string &nick) {
 }
 
 bool Channel::isOp(const Client *client) {
-	for (int i = 0; i < operators.size(); ++i) {
+	for (unsigned int i = 0; i < operators.size(); ++i) {
 		if (operators[i] == client)
 			return true;
 	}

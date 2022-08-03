@@ -1,6 +1,8 @@
 #include "Server.hpp"
 
-Server::Server(const char *port, const char *pass) : port(port), password(pass) {
+bool quit_sig = false;
+
+Server::Server(const int port, const char *pass) : port(port), password(pass) {
 
 	hostname = "irc.example.com";
 
@@ -14,15 +16,15 @@ Server::Server(const char *port, const char *pass) : port(port), password(pass) 
 	}
 	commandHandler = new CommandHandler(this);
 
-	ping_delay = 20;
-	last_ping = std::time(0);
+	pingTimeout = 60;
+	inactivityTimeout = 120;
 	operPassword = "8888";
 
 	logger::info("IRC server configured successfully");
 }
 
 Server::~Server() {
-	logger::debug("serv destr\n");
+	logger::debug("serv destr");
 	shutdown();
 }
 
@@ -51,7 +53,7 @@ void Server::broadcastEvent(Client *exclude) {
 }
 
 void Server::broadcastEvent(std::vector<Client *> users) {
-	for (int i = 0; i < users.size(); ++i) {
+	for (unsigned int i = 0; i < users.size(); ++i) {
 		addEvent(WRITE_EVENT, users[i]->getFd());
 	}
 }
@@ -71,6 +73,7 @@ void Server::initListeningSocket() {
 
 	listeningSocket = ::socket(PF_INET, SOCK_STREAM, 0);
 	if (listeningSocket < 0) {
+		// todo use returns
 		throw std::runtime_error("Error: socket creation.");
 		return;
 	}
@@ -79,7 +82,7 @@ void Server::initListeningSocket() {
 	}
 	address.sin_family = PF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons(std::stoi(port));
+	address.sin_port = htons(port);
 
 	memset(address.sin_zero, '\0', sizeof address.sin_zero);
 	if (bind(listeningSocket, (struct sockaddr *)&address, sizeof(address))) {
@@ -126,6 +129,31 @@ int Server::acceptConnection(int event_fd) {
 //	return lenRead;
 //}
 
+
+void Server::welcome(Client *client) {
+	const std::string &nick = client->getNickname();
+
+	client->addReply(hostname, RPL_WELCOME(nick, client->getPrefix()));
+	client->addReply(hostname, RPL_YOURHOST(nick, client->getHostname(), std::string("1.1")));
+//	client->addReply(hostname, RPL_CREATED(nick, server_->getHostname())); // date of server creation
+	client->addReply(hostname, RPL_MYINFO(nick, hostname, std::string("1.1"),
+										  std::string("oOa"), std::string("O")));
+
+//	client->addReply(hostname, RPL_LUSERCLIENT());
+//	client->addReply(hostname, RPL_LUSEROP(std::to_string(server_->get)));
+//	client->addReply(hostname, RPL_LUSERUNKNOWN()); //
+	client->addReply(hostname, RPL_LUSERCHANNELS(nick, std::to_string(getChannelNum())));
+}
+
+void Server::checkConnectionRegistration(Client *client) {
+	if (client->getNickname().size() > 0 && client->getUsername().size() > 0) {
+		std::string mes = "MOTD";
+		client->setState(DONE);
+		welcome(client);
+		commandHandler->handle(client, mes);
+	}
+}
+
 int Server::request(int fd) {
 	char *buffer;
 	int lenRead;
@@ -138,17 +166,16 @@ int Server::request(int fd) {
 	lenRead = recv(fd, buffer, bufferLen, 0);
 	logger::debug(SSTR("lenRead: " << lenRead));
 	if (lenRead > 0) {
-		logger::debug(SSTR("fd: " << fd << " read: " << buffer)); // heap buffer overflow
+		logger::debug(SSTR("fd: " << fd << " read: " << buffer));
 		clients[fd]->addRequest(buffer, lenRead);
-//		std::cout << buffer << "\n";
 		if (!std::strstr(buffer, "\n")) {
 			delete[] buffer;
 			return NEED_MORE;
 		}
+		delete[] buffer;
 		clients[fd]->clearReply();
 		commandHandler->handle(clients[fd], clients[fd]->getRequest());
 		clients[fd]->clearRequest();
-		delete[] buffer;
 		return DONE_READING;
 	}
 	delete[] buffer;
@@ -197,94 +224,117 @@ int Server::response(int fd, unsigned int dataSize) {
 //	return lenSent;
 //}
 
-void Server::sendPing() {
-	client_it it = clients.begin();
-	client_it ite = clients.end();
-	std::string cmd = "PING";
-	for (; it != ite; ++it)
-		commandHandler->handle(it->second, cmd);
-	broadcastEvent();
-}
-
-/*
-void Server::welcome(Client *client) {
-
-	client->addReply(hostname, RPL_WELCOME());
-	client->addReply(hostname, RPL_YOURHOST());
-	client->addReply(hostname, RPL_CREATED());
-	client->addReply(hostname, RPL_MYINFO());
-
-	client->addReply(hostname, RPL_LUSERCLIENT());
-	client->addReply(hostname, RPL_LUSEROP());
-//	client->addReply(hostname, RPL_LUSERUNKNOWN());
-	client->addReply(hostname, RPL_LUSERCHANNELS());
-
-	client->addReply(hostname, RPL_MOTDSTART());
-	client->addReply(hostname, RPL_MOTD(getMOTD()));
-	client->addReply(hostname, RPL_ENDOFMOTD());
-}
-*/
-
 int Server::processEvents() {
 	int new_events_num;
 	struct kevent eventList[MAX_EVENTS];
+	struct timespec tmout = {
+		61, // block for 60 seconds at most
+		0 // nanoseconds
+	};
 
-	new_events_num = kevent(kq, 0, 0, eventList, MAX_EVENTS, NULL);
+	new_events_num = kevent(kq, 0, 0, eventList, MAX_EVENTS, &tmout);
 	if (new_events_num == IRC_ERROR) {
 		return -1;
+	} else if (new_events_num == 0) {
+		logger::warn("No events; timeout");
 	}
 
-	// kevent time out
-//	if (std::time(0) - last_ping >= ping_delay) {
-//		sendPing();
-//		last_ping = std::time(0);
-//		logger::debug("ping");
-//	} //else {
+	for (int i = 0; i < new_events_num; ++i) {
+		struct kevent &event = eventList[i];
+		unsigned eventFd = event.ident;
 
-		for (int i = 0; i < new_events_num; ++i) {
-			struct kevent &event = eventList[i];
-			unsigned eventFd = event.ident;
-
-			if (event.flags & EV_EOF) {
-				disconnectClient(eventFd);
-			} else if (eventFd == listeningSocket) {
-				acceptConnection(event.ident);
-			} else if (event.filter == EVFILT_READ) {
-				int ret = request(event.ident);
-				if (ret == DONE_READING) {
-					logger::debug("done reading");
-					addEvent(WRITE_EVENT, eventFd);
-				} else if (ret == NEED_MORE)
-					addEvent(READ_EVENT, eventFd);
-				else
-					; // ignore
-//					disconnectClient(eventFd);
-			} else if (event.filter == EVFILT_WRITE) {
-//				logger::debug("write event");
-				int ret = response(event.ident, event.data);
-//				if (clients[eventFd]->haveQuit() && clients[eventFd]->getReply() == "")
-					/// close socket -> EOF
-//					disconnectClient(eventFd);
-//			if (ret <= 0)
-//				disconnectClient(eventFd);
-			}// else
-//			disconnectClient(eventFd);
+		if (event.flags & EV_EOF) {
+			disconnectClient(eventFd);
 		}
+		else if (eventFd == listeningSocket) {
+			acceptConnection(event.ident);
+		}
+		else if (event.filter == EVFILT_READ) {
+			int ret = request(event.ident);
+			if (ret == DONE_READING) {
+				logger::debug("done reading");
+				addEvent(WRITE_EVENT, eventFd);
+			}
+			else if (ret == NEED_MORE)
+				addEvent(READ_EVENT, eventFd);
+			else
+				; // ignore
+			// disconnectClient(eventFd);
+			clients[eventFd]->updateLastActivityTime();
+		}
+		else if (event.filter == EVFILT_WRITE) {
+			//				logger::debug("write event");
+			int ret = response(event.ident, event.data);
+			if (ret < 0)// <=
+				logger::warn("sending response failed");
+//				disconnectClient(eventFd);
+			clients[eventFd]->updateLastActivityTime();
+		}// else
+		//			disconnectClient(eventFd);
+	}
+//	logger::info("after events");
 //	}
 	return IRC_OK;
 }
 
+
+void Server::pingConnection() {
+	client_it it = clients.begin();
+	client_it ite = clients.end();
+//	logger::info("Ping func");
+	for (; it != ite; ++it) {
+//		logger::info("Ping loop");
+		if (it->second->isRegistered()) {
+			if (std::time(0) - it->second->getLastActivityTime() > static_cast<time_t>(inactivityTimeout)) {
+//				std::string cmd = "PING";
+//				commandHandler->handle(it->second, cmd);
+				it->second->addReply(hostname, RPL_PING(hostname));
+				it->second->updateLastPingTime();
+				it->second->updateLastActivityTime();
+				// set state on pinging
+				it->second->statePing(true);
+				addEvent(WRITE_EVENT, it->first);
+				logger::info(SSTR("Ping to user " << it->first));
+
+			}
+			if (it->second->pinging() && std::time(0) - it->second->getTimeAfterPing() > static_cast<time_t>(pingTimeout))
+				it->second->quit();
+		}
+	}
+
+
+}
+
+void sigHandler(int) {
+	quit_sig = true;
+}
+
 int Server::run() {
 	logger::info("Running IRC server");
+
+	// todo sigint sigpipe
+	signal(SIGINT, sigHandler);
 	for (;;) {
-		if (processEvents() == IRC_ERROR) {
-			logger::debug("err");
+		try {
+			if (processEvents() == IRC_ERROR) {
+				logger::debug("err");
+//				break;
+			}
+		} catch (const char *e) {
+//			shutdown();
+			return IRC_OK;
+		}
+		if (quit_sig) {
+			logger::info("Signal termination");
+//			shutdown();
 			break;
 		}
+//		logger::info("loop");
+		pingConnection();
+		deleteClosedSessions();
+		deleteEmptyChannels();
 //		if (terminate || quit) {
-//			shutdown();
-//			break;
-//		}
+
 	}
 	return IRC_OK;
 }
@@ -296,14 +346,25 @@ Channel *Server::createChannel(std::string name, std::string key, Client *client
 	return channel;
 }
 
-void Server::deleteChannel(const std::string &name) {
+//void Server::deleteChannel(const std::string &name) {
+//	std::vector<Channel*>::iterator it = channels.begin();
+//	for (; it != channels.end(); ++it) {
+//		if ((*it)->getName() == name) {
+//			delete *it;
+//			channels.erase(it);
+//			break;
+//		}
+//	}
+//}
+
+void Server::deleteEmptyChannels() {
 	std::vector<Channel*>::iterator it = channels.begin();
-	for (; it != channels.end(); ++it) {
-		if ((*it)->getName() == name) {
+	while (it != channels.end()) {
+		if ((*it)->getUserNum() == 0) {
 			delete *it;
-			channels.erase(it);
-			break;
-		}
+			it = channels.erase(it);
+		} else
+			++it;
 	}
 }
 
@@ -330,7 +391,7 @@ Client *Server::getClient(std::string nick) {
 }
 
 bool Server::isOp(std::string &nick) {
-	for (int i = 0; i < opers.size(); ++i) {
+	for (unsigned int i = 0; i < opers.size(); ++i) {
 		if (opers[i] == nick)
 			return true;
 	}
@@ -346,7 +407,7 @@ void Server::ban(std::string &nick) {
 }
 
 bool Server::isBanned(std::string &nick) {
-	for (int i = 0; i < banlist.size(); ++i) {
+	for (unsigned int i = 0; i < banlist.size(); ++i) {
 		if (banlist[i] == nick)
 			return true;
 	}
@@ -354,8 +415,21 @@ bool Server::isBanned(std::string &nick) {
 }
 
 void Server::shutdown() {
+	logger::info("Shutting down...");
 	close(kq);
+	delete commandHandler;
+
 	disconnectAllClients();
+
+
+	std::vector<Channel*>::iterator it = channels.begin();
+	while (it != channels.end()) {
+		delete *it;
+		++it;
+//		it = channels.erase(it);
+	}
+	channels.clear();
+
 	close(listeningSocket);
 }
 
@@ -365,10 +439,21 @@ void Server::disconnectAllClients() {
 	client_it ite = clients.end();
 	while (it != ite) {
 		delete it->second;
-		it->second->leaveAllChannels();
 		it = clients.erase(it);
 	}
 	clients.clear();
+}
+
+void Server::deleteClosedSessions() {
+	client_it it = clients.begin();
+	client_it ite = clients.end();
+	while (it != ite) {
+		if (it->second->haveQuit()) {
+			delete it->second;
+			it = clients.erase(it);
+		} else
+			++it;
+	}
 }
 
 void Server::disconnectClient(int fd) {

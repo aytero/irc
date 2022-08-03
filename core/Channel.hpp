@@ -16,16 +16,17 @@ class Channel;
 class Channel {
 	std::string name;
 	std::string key;
+	std::string topic;
+	bool modeN;
+
 	int userNum;
 	int maxUserNum;
+
 	std::vector<Client*> users;
 	std::vector<std::string> banlist;
 
 	Client *creator;
 	std::vector<Client*> operators;
-	std::string topic;
-
-	bool modeN;
 
 public:
 	Channel(std::string name, std::string key);
@@ -42,6 +43,7 @@ public:
 	std::string &getKey();
 	void setTopic(std::string &topic);
 	bool isOp(const Client *client);
+//	void setCreator();
 	void setOp(Client *client);
 	void addUser(Client *client);
 	int getUserNum();
