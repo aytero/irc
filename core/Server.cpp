@@ -321,19 +321,16 @@ int Server::run() {
 //				break;
 			}
 		} catch (const char *e) {
-//			shutdown();
 			return IRC_OK;
 		}
 		if (quit_sig) {
 			logger::info("Signal termination");
-//			shutdown();
 			break;
 		}
-//		logger::info("loop");
 		pingConnection();
+		// todo too slow if client reconnects
 		deleteClosedSessions();
 		deleteEmptyChannels();
-//		if (terminate || quit) {
 
 	}
 	return IRC_OK;

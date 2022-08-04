@@ -36,13 +36,11 @@ void JoinCmd::execute(Client *client, std::vector<std::string> args) {
 	if (args.size() > 1)
 		key = args[1];
 	if (server_->getChannelNum() > SERVER_MAX_CHANNELS || client->getChannelNum() > USER_MAX_CHANNELS) {
-//		client->addReply(server_->getHostname(), ERR_TOOMANYCHANNELS(chanName));
 		client->addReply(server_->getHostname(), "405", ERR_TOOMANYCHANNELS(chanName));
 		return;
 	}
 
 	Channel *channel = server_->getChannel(chanName);
-//	logger::debug(SSTR(chanName << " channel name (JOIN)"));
 	if (chanName.size() < 2 || (chanName[0] != '#' && chanName[0] != '&')) {
 		client->addReply(server_->getHostname(), ERR_NOSUCHCHANNEL(client->getNickname(), chanName));
 		return;
