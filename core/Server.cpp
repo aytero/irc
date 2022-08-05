@@ -158,7 +158,7 @@ int Server::request(int fd) {
 	char *buffer;
 	int lenRead;
 
-	unsigned bufferLen = 200;
+	unsigned bufferLen = 256;
 
 	buffer = new char [bufferLen];
 	memset(buffer, 0, bufferLen);

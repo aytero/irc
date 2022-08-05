@@ -32,8 +32,8 @@ void PrivMsgCmd::execute(Client *client, std::vector <std::string> args) {
 			logger::debug(ERR_CANNOTSENDTOCHAN(targetName));
 			return;
 		}
-		channel->broadcast(RPL_PRIVMSG(client->getPrefix(), targetName, message));
-//		channel->broadcast(RPL_PRIVMSG(client->getPrefix(), targetName, message), client);
+//		channel->broadcast(RPL_PRIVMSG(client->getPrefix(), targetName, message));
+		channel->broadcast(RPL_PRIVMSG(client->getPrefix(), targetName, message), client);
 		server_->broadcastEvent(channel->getUsers());
 		return;
 	}

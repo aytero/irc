@@ -45,121 +45,100 @@ void CampfireBot::sendReply(std::string mes) {
 
 
 void CampfireBot::initGuessNumber() {
-	
+
+	state_ = GAME;
+	tries_ = 0;
+	finishGame = false;
 	srand(std::time(0));
 	num_ = rand() % 100 + 1;
 
-	sendReply("PRIVMSG " + channel_ + "Welcome to the Guess number game!");
-	sendReply("PRIVMSG " + channel_ + "You can use FINISH to stop the game.");
-	sendReply("PRIVMSG " + channel_ + "Enter a guess between 1 and 100: ");
+	sendReply("PRIVMSG " + channel_ + " "B_ORG"Welcome to the Guess number game!"RESET_B);
+	sendReply("PRIVMSG " + channel_ + " "B_ORG"You can use !finish to stop the game"RESET_B);
+	sendReply("PRIVMSG " + channel_ + " "B_ORG"Enter a guess between 1 and 100: "RESET_B);
 }
 
 void CampfireBot::checkGuess(int guess) {
+	std::string mes;
 
-	std::string mes = "";
 	++tries_;
 	if (guess > num_) {
-		mes = "Too high! Try again, you have " + std::to_string(MAX_TRIES - tries_) + " left";
+		mes = " "YEL"Too high! Try again, you have " + std::to_string(MAX_TRIES - tries_) + " tries left"RESET_B;
 	} else if (guess < num_) {
-		mes = "Too low! Try again, you have " + std::to_string(MAX_TRIES - tries_) + " left";
+		mes = " "YEL"Too low! Try again, you have " + std::to_string(MAX_TRIES - tries_) + " tries left"RESET_B;
 	} else {
-		mes = "Correct! You got it in " + std::to_string(tries_) + " tries!";
+		mes = " "B_ORG"Correct! You got it in " + std::to_string(tries_) + (tries_ == 1 ? " try" : " tries!") + RESET_B;
 		finishGame = true;
 	}
 
-	if (tries_ == MAX_TRIES) {
-		mes = "You are out of tries! :(   The number was " + std::to_string(num_);
+	if (!finishGame && tries_ == MAX_TRIES && guess != num_) {
+		mes = " "B_ORG"You are out of tries! The number was " + std::to_string(num_) + RESET_B;
 		finishGame = true;
 	}
 	sendReply("PRIVMSG " + channel_ + " " + mes);
 }
 
+void CampfireBot::helpCmd() {
+
+	sendReply("PRIVMSG " + channel_ + " "ORG"I'm a CampfireBot. Come sit at my warm place!"RESET_B);
+	sendReply("PRIVMSG " + channel_ + " "ORG"Here are some commands I can do:"RESET_B);
+	sendReply("PRIVMSG " + channel_ + " "ORG"!help - to get help"RESET_B);
+	sendReply("PRIVMSG " + channel_ + " "ORG"!game - to play some number guessing"RESET_B);
+	sendReply("PRIVMSG " + channel_ + " "ORG"!finish - to finish the game"RESET_B);
+}
+
 void CampfireBot::gameCmd() {
 	if (state_ != GAME) {
-		state_ = GAME;
-		tries_ = 0;
 		initGuessNumber();
-		//sendReply("PRIVMSG " + channel_ + " ");
-		// game
-	// tries left
-
 	} else {
-		sendReply("PRIVMSG " + channel_ + " you are already playing");
+		sendReply("PRIVMSG " + channel_ + " "B_ORG":you are already playing"RESET_B);
 	}
 }
+
 void CampfireBot::finishCmd() {
 	if (state_ == GAME) {
-		sendReply("PRIVMSG " + channel_ + " :finishing the guessing game");
+		sendReply("PRIVMSG " + channel_ + " "B_ORG":finishing the guessing game"RESET_B);
 		state_ = RUN; // idle
 	} else {
-		sendReply("PRIVMSG " + channel_ + " : there is nothing to finish");
+		sendReply("PRIVMSG " + channel_ + " "B_ORG":there is no game to finish"RESET_B);
 	}
 }
 
 void CampfireBot::handle(std::string message) {
 
+	Message mes(message);
 
-	// todo cut prefix, privmsg, etc and leave only message
-
-	// prefix
-	//logger::warn(message + " message!");
-	message.erase(0, message.find(' ') + 1);
-	//logger::warn(message);
-
-	std::string serv_cmd = message.substr(0, message.find(' '));
-	message.erase(0, message.find(' ') + 1);
-
-	if (serv_cmd == "PING") {
-		sendReply("PONG " + message.substr(0, message.find(' ')));
+	// todo: help !help
+	// cmd also may parse as numeric
+	if (mes.getServCommand() == "PING") {
+		if (!mes.getArgs().empty())
+			sendReply("PONG " + mes.getArgs()[0]);
 		return;
 	}
-	
-	std::string chan = message.substr(0, message.find(' '));
-	message.erase(0, message.find(' ') + 2);
 
-	if ((serv_cmd != "PRIVMSG") || chan != channel_) {
-		logger::warn(serv_cmd);
-		return ;
-	}
-	
-
-	std::stringstream ss(message);
-	std::string separator;
-
-	while (std::getline(ss, separator)) {
-		separator = separator.substr(0, separator[separator.size() - 1] == '\r' ? separator.size() - 1 : separator.size());
-
-		std::string cmd  = separator.substr(0, separator.find(" :"));
-		//std::string cmd  = separator.substr(0, separator.find(' '));
-
-		std::vector<std::string> args;
-		std::string buf;
-		std::stringstream ssin(separator.substr(cmd.size(), separator.size()));
-
-		// todo doesnt work with multiple args
-		// ex: JOIN #campfire, #bonfire
-		while (ssin >> buf) {
-			/// undefined ?
-			if (buf[0] == ':')//->++buf
-				buf = buf.substr(1);
-			args.push_back(buf);
-		}
-
-		for (unsigned int i = 0; i < args.size(); ++i)
-			logger::debug(SSTR("arg[" << i << "]: " <<args[i]));
-
-		if (cmd == "GAME")
+	logger::info(SSTR("Parsed serv command: " << mes.getServCommand()));
+	if (mes.getServCommand() == "PRIVMSG" && mes.getChannel() == channel_) {
+		std::string &cmd = mes.getArgs()[0];
+		if (cmd == "GAME" || cmd == "!game")
 			gameCmd();
-		if (cmd == "FINISH") {
+		else if (cmd == "FINISH" || cmd == "!finish") {
 			finishCmd();
+		} else if (cmd == "HELP" || cmd == "!help") {
+			helpCmd();
+		} else if (state_ == GAME && !mes.getArgs().empty()) {
+			try {
+				int guess = stoi(mes.getArgs()[0]);
+				checkGuess(guess);
+				if (finishGame)
+					state_ = RUN;
+			} catch (std::invalid_argument const &ex) {
+				logger::info("stoi exception");
+			}
 		}
-		if (cmd == "PING") {
-			sendReply("PONG " + args[1]);
-		}
-
-//		if (cmd == "booo")
-//			sendReply("PRIVMSG " + channel_ + " baaa! /ghost/");
-		//command->execute(client, args);
+//		} else {
+//			sendReply("PRIVMSG " + channel_ + "Unknown command")
+//		}
+		//		if (cmd == "booo")
+		//			sendReply("PRIVMSG " + channel_ + " baaa! /ghost/");
 	}
 }
 
@@ -177,7 +156,7 @@ void CampfireBot::run() {
 		memset(buffer, 0, bufferLen);
 		lenRead = recv(sock, buffer, bufferLen, 0);
 		if (lenRead < 1) { // < 0 ?
-			logger::error("recv failed/ server is down");
+			logger::error("recv failed or server is down");
 			return;
 		}
 //		if (lenRead == 0) {
@@ -190,18 +169,6 @@ void CampfireBot::run() {
 
 		//std::vector<std::string> args = parse(buffer);
 		handle(buffer);
-		/*
-		if (state_ == GAME) {
-			try {
-				int guess = stoi(args[0]);
-				checkGuess(guess);
-				if (finishGame)
-					state_ = RUN;
-			} catch (std::invalid_argument const& ex) {
-				logger::info("stoi exception");
-			}
-		}
-		*/
 	}
 //	delete buffer;
 }

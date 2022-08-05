@@ -12,7 +12,7 @@ PongCmd::~PongCmd() {}
 void PongCmd::execute(Client *client, std::vector<std::string> args) {
 
 	if (args.empty()) {
-		client->addReply(server_->getHostname(), "402", ERR_NOORIGIN());
+		client->addReply(server_->getHostname(), ERR_NOORIGIN());
 		return;
 	}
 	Client *targ = server_->getClient(args[0]);

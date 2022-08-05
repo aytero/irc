@@ -4,7 +4,7 @@ OBJS_DIR			= ./objs
 
 CXX_HEADERS			= .
 
-CXX_FILES			= CampfireBot.cpp ../logger/Logger.cpp# main.cpp
+CXX_FILES			= CampfireBot.cpp Message.cpp ../logger/Logger.cpp# main.cpp
 
 CXX_DIRS			= $(dir $(CXX_FILES))
 vpath %.cpp $(CXX_DIRS)
