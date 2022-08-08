@@ -109,7 +109,8 @@ void Client::leaveAllChannels() {
 }
 
 void Client::addRequest(const char *mes, int len) {
-	request.append(mes, len);
+	request_bytes.insert(request_bytes.end(), mes, mes + len);
+	//request.append(mes, len);
 }
 
 int Client::getChannelNum() {

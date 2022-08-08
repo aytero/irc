@@ -40,7 +40,10 @@ CampfireBot::CampfireBot(std::string port, std::string pass) : stop(false), chan
 void CampfireBot::sendReply(std::string mes) {
 	logger::debug("send reply: " + mes);
 	mes.append("\r\n");
-	send(sock, mes.c_str(), mes.size(), 0);
+	int ret = send(sock, mes.c_str(), mes.size(), 0);
+	if (ret <= 0) {
+		logger::error("send failure");
+	}
 }
 
 
@@ -124,6 +127,8 @@ void CampfireBot::handle(std::string message) {
 			finishCmd();
 		} else if (cmd == "HELP" || cmd == "!help") {
 			helpCmd();
+		} else if(cmd[0] == '!' && (cmd != "!help" && cmd != "!game" && cmd != "!finish")) {
+			sendReply("PRIVMSG " + channel_ + " Unknown bot command!");
 		} else if (state_ == GAME && !mes.getArgs().empty()) {
 			try {
 				int guess = stoi(mes.getArgs()[0]);

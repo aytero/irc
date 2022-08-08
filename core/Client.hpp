@@ -53,6 +53,7 @@ class Client {
 	// registration time
 	bool pinging_;
 
+	std::vector<char> request_bytes;
 	std::string request;
 	unsigned int offset_;
 	std::string reply;
@@ -82,8 +83,15 @@ public:
 
 	int getFd();
 	void addRequest(const char *mes, int len);
-	std::string &getRequest() {return request;}
-	void clearRequest() {request.clear(); request = "";}
+	std::vector<char> &getRequestBytes() {return request_bytes;}
+	std::string &getRequest() {
+		std::string r(request_bytes.begin(), request_bytes.end());
+		request = r;
+		return request;
+	}
+	//std::string &getRequest() {return request;}
+	void clearRequest() {request_bytes.clear(); request.clear(); request = "";}
+	//void clearRequest() {request.clear(); request = "";}
 	bool isRegistered();
 	void addReply(std::string mes);
 	void addReply(std::string from, std::string mes);

@@ -258,7 +258,7 @@ int Server::processEvents() {
 			else if (ret == NEED_MORE)
 				addEvent(READ_EVENT, eventFd);
 			else
-				; // ignore
+				logger::warn("bad recv");
 			// disconnectClient(eventFd);
 			clients[eventFd]->updateLastActivityTime();
 		}
